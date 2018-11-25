@@ -4,7 +4,7 @@ defmodule Ets.Table.New do
   @moduledoc """
   Provides functionality to create `:ets` tables. Type of table is specified by picking the appropriate
   function. Specifying an atom as the first parameter will result in a named table, not specifying will
-  result in an unnamed table. All functions return {:ok, return} | {:error, reason} tuples, and have a bang (ending in !)
+  result in an unnamed table. All functions return {:ok, return} | {:error, reason} tuples, and have a bang version (ending in !)
   which returns the raw value or raises on :error. Named versions return the name of the table, unnamed versions return a
   reference to the table.
 
