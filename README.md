@@ -2,7 +2,7 @@
 
 `:ets`, the Elixir way
 
-[![Build Status](https://semaphoreci.com/api/v1/thefirstavenger/ets/branches/master/badge.svg)](https://semaphoreci.com/thefirstavenger/ets)
+[![Build Status](https://travis-ci.com/TheFirstAvenger/ets.svg?branch=master)](https://travis-ci.com/TheFirstAvenger/ets)
 
 Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`). The purposes of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
 
