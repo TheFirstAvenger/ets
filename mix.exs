@@ -36,7 +36,7 @@ defmodule Ets.MixProject do
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:earmark, "~> 1.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19.1", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.10.2", only: :test},
+      {:excoveralls, "~> 0.10.3", only: :test},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false}
     ]
