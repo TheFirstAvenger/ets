@@ -18,7 +18,7 @@ This will be accomplished by:
     * Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
   * All options specified via keyword list.
 * Providing Elixir friendly documentation.
-* Providng `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
+* Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
   * `Ets.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
 * Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
 * Appropriate error returns/raises when encountering `$end_of_table`.
