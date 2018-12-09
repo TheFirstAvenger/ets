@@ -17,11 +17,11 @@ This will be accomplished by:
     * Main function (e.g. `get` returns `{:ok, return}`/`{:error, reason}` tuples.
     * Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
   * All options specified via keyword list.
+* Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
+* Appropriate error returns/raises when encountering `$end_of_table`.
 * Providing Elixir friendly documentation.
 * Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
   * `Ets.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
-* Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
-* Appropriate error returns/raises when encountering `$end_of_table`.
 
 ## Usage
 
