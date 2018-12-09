@@ -30,8 +30,8 @@ defmodule Ets do
       true
 
   """
-  @spec all() :: {:ok, [Ets.table_identifier()]} | {:error, any()}
-  def all() do
+  @spec all :: {:ok, [Ets.table_identifier()]} | {:error, any()}
+  def all do
     catch_error do
       all =
         :ets.all()

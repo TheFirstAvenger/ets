@@ -2,17 +2,35 @@ defmodule Ets.Set do
   @moduledoc """
   Module for creating and interacting with :ets tables of the type `:set` and `:ordered_set`.
 
-  Sets contain tuple records. One element of the tuple is the key of the tuple, and is
-  specified when the Set is created with the `keypos: 1` option. If not specified, the default
-  is 1. When a record is added to the table with `put`, it will overwrite an existing record
+  Sets contain "records" which are tuples. Sets are configured with a key position via the `keypos: integer` option.
+  If not specified, the default key position is 1. The element of the tuple record at the key position is that records key.
+  For example, setting the `keypos` to 2 means the key of an inserted record `{:a, :b}` is `:b`:
+
+      iex> {:ok, set} = Set.new(keypos: 2)
+      iex> Set.put!(set, {:a, :b})
+      iex> Set.get(set, :a)
+      {:ok, nil}
+      iex> Set.get(set, :b)
+      {:ok, {:a, :b}}
+
+  When a record is added to the table with `put`, it will overwrite an existing record
   with the same key. `put_new` will only put the record if a matching key doesn't already exist.
 
   ## Examples
 
       iex> {:ok, set} = Set.new(ordered: true)
-      iex> Set.put!(set, {:a, :b, :c})
-      iex> Set.lookup!(set, :a)
-      {:a, :b, :c}
+      iex> Set.put_new!(set, {:a, :b, :c})
+      iex> Set.to_list!(set)
+      [{:a, :b, :c}]
+      iex> Set.put_new!(set, {:d, :e, :f})
+      iex> Set.to_list!(set)
+      [{:a, :b, :c}, {:d, :e, :f}]
+      iex> Set.put_new(set, {:a, :g, :h})
+      {:error, :key_already_exists}
+      iex> Set.to_list!(set)
+      [{:a, :b, :c}, {:d, :e, :f}]
+
+  To insert multiple records in an atomic an isolated manner, use `put_multi` or `put_multi_new`.
 
   """
   use Ets.Utils
@@ -144,22 +162,22 @@ defmodule Ets.Set do
   ## Examples
 
       iex> {:ok, set} = Set.new(ordered: true)
-      iex> {:ok, _} = Set.insert_new(set, {:a, :b, :c})
-      iex> {:ok, _} = Set.insert_new(set, {:d, :e, :f})
-      iex> Set.insert_new(set, {:d, :e, :f})
+      iex> {:ok, _} = Set.put_new(set, {:a, :b, :c})
+      iex> {:ok, _} = Set.put_new(set, {:d, :e, :f})
+      iex> Set.put_new(set, {:d, :e, :f})
       {:error, :key_already_exists}
 
   """
-  @spec insert_new(Set.t(), tuple()) :: {:ok, Set.t()} | {:error, any()}
-  def insert_new(%Set{table: table} = set, record) when is_tuple(record),
+  @spec put_new(Set.t(), tuple()) :: {:ok, Set.t()} | {:error, any()}
+  def put_new(%Set{table: table} = set, record) when is_tuple(record),
     do: Base.insert_new(table, record, set)
 
   @doc """
-  Same as `insert_new/2` but unwraps or raises on error.
+  Same as `put_new/2` but unwraps or raises on error.
   """
-  @spec insert_new!(Set.t(), tuple()) :: Set.t()
-  def insert_new!(%Set{} = set, record) when is_tuple(record),
-    do: unwrap_or_raise(insert_new(set, record))
+  @spec put_new!(Set.t(), tuple()) :: Set.t()
+  def put_new!(%Set{} = set, record) when is_tuple(record),
+    do: unwrap_or_raise(put_new(set, record))
 
   @doc """
   Inserts multiple records in an [atomic and isolated](http://erlang.org/doc/man/ets.html#concurrency) manner.
@@ -168,59 +186,59 @@ defmodule Ets.Set do
   ## Examples
 
       iex> {:ok, set} = Set.new(ordered: true)
-      iex> {:ok, _} = Set.insert_multi(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
+      iex> {:ok, _} = Set.put_multi(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
       iex> Set.to_list(set)
       {:ok, [{:a, :b, :c}, {:d, :e, :f}]}
   """
-  @spec insert_multi(Set.t(), list(tuple())) :: {:ok, Set.t()} | {:error, any()}
-  def insert_multi(%Set{table: table} = set, records) when is_list(records),
+  @spec put_multi(Set.t(), list(tuple())) :: {:ok, Set.t()} | {:error, any()}
+  def put_multi(%Set{table: table} = set, records) when is_list(records),
     do: Base.insert_multi(table, records, set)
 
   @doc """
-  Same as `insert_multi/2` but unwraps or raises on error.
+  Same as `put_multi/2` but unwraps or raises on error.
   """
-  @spec insert_multi!(Set.t(), list(tuple())) :: Set.t()
-  def insert_multi!(%Set{} = set, records) when is_list(records),
-    do: unwrap_or_raise(insert_multi(set, records))
+  @spec put_multi!(Set.t(), list(tuple())) :: Set.t()
+  def put_multi!(%Set{} = set, records) when is_list(records),
+    do: unwrap_or_raise(put_multi(set, records))
 
   @doc """
-  Same as `insert_multi/2` but returns error and doesn't insert if one of the specified keys already exists.
+  Same as `put_multi/2` but returns error and doesn't insert if one of the specified keys already exists.
 
   ## Examples
 
       iex> {:ok, set} = Set.new(ordered: true)
-      iex> {:ok, _} = Set.insert_multi_new(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
-      iex> {:error, :key_already_exists} = Set.insert_multi_new(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
+      iex> {:ok, _} = Set.put_multi_new(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
+      iex> {:error, :key_already_exists} = Set.put_multi_new(set, [{:a, :b, :c}, {:d, :e, :f}, {:d, :e, :f}])
       iex> Set.to_list(set)
       {:ok, [{:a, :b, :c}, {:d, :e, :f}]}
   """
-  @spec insert_multi_new(Set.t(), list(tuple())) :: {:ok, Set.t()} | {:error, any()}
-  def insert_multi_new(%Set{table: table} = set, records) when is_list(records),
+  @spec put_multi_new(Set.t(), list(tuple())) :: {:ok, Set.t()} | {:error, any()}
+  def put_multi_new(%Set{table: table} = set, records) when is_list(records),
     do: Base.insert_multi_new(table, records, set)
 
   @doc """
-  Same as `insert_multi_new/2` but unwraps or raises on error.
+  Same as `put_multi_new/2` but unwraps or raises on error.
   """
-  @spec insert_multi_new!(Set.t(), list(tuple())) :: Set.t()
-  def insert_multi_new!(%Set{} = set, records) when is_list(records),
-    do: unwrap_or_raise(insert_multi_new(set, records))
+  @spec put_multi_new!(Set.t(), list(tuple())) :: Set.t()
+  def put_multi_new!(%Set{} = set, records) when is_list(records),
+    do: unwrap_or_raise(put_multi_new(set, records))
 
   @doc """
-  Returns record with specified key or nil if no record found.
+  Returns record with specified key or the provided default (nil if not specified) if no record found.
 
   ## Examples
 
       iex> Set.new!()
       iex> |> Set.put!({:a, :b, :c})
       iex> |> Set.put!({:d, :e, :f})
-      iex> |> Set.lookup(:d)
+      iex> |> Set.get(:d)
       {:ok, {:d, :e, :f}}
 
   """
-  @spec lookup(Set.t(), any()) :: {:ok, tuple()} | {:error, any()}
-  def lookup(%Set{table: table}, key) do
+  @spec get(Set.t(), any(), any()) :: {:ok, tuple()} | {:error, any()}
+  def get(%Set{table: table}, key, default \\ nil) do
     case Base.lookup(table, key) do
-      {:ok, []} -> {:ok, nil}
+      {:ok, []} -> {:ok, default}
       {:ok, [x | []]} -> {:ok, x}
       {:ok, _} -> {:error, :invalid_set}
       {:error, reason} -> {:error, reason}
@@ -228,10 +246,10 @@ defmodule Ets.Set do
   end
 
   @doc """
-  Same as `lookup/2` but unwraps or raises on error.
+  Same as `get/3` but unwraps or raises on error.
   """
-  @spec lookup!(Set.t(), any()) :: tuple()
-  def lookup!(%Set{} = set, key), do: unwrap_or_raise(lookup(set, key))
+  @spec get!(Set.t(), any(), any()) :: tuple()
+  def get!(%Set{} = set, key, default \\ nil), do: unwrap_or_raise(get(set, key, default))
 
   @doc """
   Returns records in the specified Set that match the specified pattern.
@@ -241,7 +259,7 @@ defmodule Ets.Set do
   ## Examples
 
       iex> Set.new!(ordered: true)
-      iex> |> Set.insert_multi!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Set.put_multi!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
       iex> |> Set.match({:"$1", :b, :"$2", :_})
       {:ok, [[:a, :c], [:h, :i]]}
 
@@ -263,7 +281,7 @@ defmodule Ets.Set do
   ## Examples
 
       iex> set = Set.new!(ordered: true)
-      iex> Set.insert_multi!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> Set.put_multi!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
       iex> {:ok, {results, _continuation}} = Set.match(set, {:"$1", :b, :"$2", :_}, 2)
       iex> results
       [[:a, :c], [:e, :f]]
@@ -286,7 +304,7 @@ defmodule Ets.Set do
   ## Examples
 
       iex> set = Set.new!(ordered: true)
-      iex> Set.insert_multi!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> Set.put_multi!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
       iex> {:ok, {results, continuation}} = Set.match(set, {:"$1", :b, :"$2", :_}, 2)
       iex> results
       [[:a, :c], [:e, :f]]
@@ -506,7 +524,7 @@ defmodule Ets.Set do
       iex> set = Set.new!()
       iex> Set.put(set, {:a, :b, :c})
       iex> Set.delete(set, :a)
-      iex> Set.lookup!(set, :a)
+      iex> Set.get!(set, :a)
       nil
 
   """

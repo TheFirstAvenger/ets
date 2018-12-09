@@ -129,37 +129,37 @@ defmodule SetTest do
       end
     end
 
-    test "insert_new!/2 raises on error" do
+    test "put_new!/2 raises on error" do
       set = Set.new!()
-      Set.insert_new!(set, {:a})
+      Set.put_new!(set, {:a})
 
       assert_raise RuntimeError,
-                   "Ets.Set.insert_new!/2 returned {:error, :key_already_exists}",
-                   fn -> Set.insert_new!(set, {:a}) end
+                   "Ets.Set.put_new!/2 returned {:error, :key_already_exists}",
+                   fn -> Set.put_new!(set, {:a}) end
 
       Set.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.insert_new!/2 returned {:error, :table_not_found}",
+                   "Ets.Set.put_new!/2 returned {:error, :table_not_found}",
                    fn ->
-                     Set.insert_new!(set, {:a})
+                     Set.put_new!(set, {:a})
                    end
     end
 
-    test "insert_multi_new!/2 raises on error" do
+    test "put_multi_new!/2 raises on error" do
       set = Set.new!()
-      Set.insert_multi_new!(set, [{:a}, {:b}])
+      Set.put_multi_new!(set, [{:a}, {:b}])
 
       assert_raise RuntimeError,
-                   "Ets.Set.insert_multi_new!/2 returned {:error, :key_already_exists}",
-                   fn -> Set.insert_multi_new!(set, [{:a}, {:b}]) end
+                   "Ets.Set.put_multi_new!/2 returned {:error, :key_already_exists}",
+                   fn -> Set.put_multi_new!(set, [{:a}, {:b}]) end
 
       Set.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.insert_multi_new!/2 returned {:error, :table_not_found}",
+                   "Ets.Set.put_multi_new!/2 returned {:error, :table_not_found}",
                    fn ->
-                     Set.insert_multi_new!(set, [{:a}, {:b}])
+                     Set.put_multi_new!(set, [{:a}, {:b}])
                    end
     end
   end
@@ -284,7 +284,7 @@ defmodule SetTest do
     end
   end
 
-  def table_name(), do: String.to_atom("table#{:rand.uniform(9_999_999)}")
+  def table_name, do: String.to_atom("table#{:rand.uniform(9_999_999)}")
 
   def table_info(%Set{table: table}), do: table_info(table)
 

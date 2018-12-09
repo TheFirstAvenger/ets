@@ -35,7 +35,8 @@ defmodule Ets.Base do
       case parse_opts(starting_opts, opts) do
         {:ok, parsed_opts} ->
           info =
-            :ets.new(name, parsed_opts)
+            name
+            |> :ets.new(parsed_opts)
             |> :ets.info()
 
           ref = info[:id]
