@@ -88,7 +88,7 @@ already exists. The `_multi` variations will insert all records in an atomic and
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.2.1"}
+    {:ets, "~> 0.2.2"}
   ]
 end
 ```
