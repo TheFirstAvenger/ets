@@ -136,7 +136,7 @@ defmodule Ets.Set do
   Returns underlying `:ets` table reference.
 
   For use in functions that are not yet implemented. If you find yourself using this, please consider
-  submitting a PR to add the necessary function to `Ets`.`
+  submitting a PR to add the necessary function to `Ets`.
 
   ## Examples
 
