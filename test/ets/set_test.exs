@@ -284,6 +284,14 @@ defmodule SetTest do
     end
   end
 
+  describe "Get Table" do
+    test "get_table!/1 returns table" do
+      table = :ets.new(nil, [:set])
+      set = Set.wrap_existing!(table)
+      assert table == Set.get_table!(set)
+    end
+  end
+
   def table_name, do: String.to_atom("table#{:rand.uniform(9_999_999)}")
 
   def table_info(%Set{table: table}), do: table_info(table)

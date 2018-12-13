@@ -133,6 +133,30 @@ defmodule Ets.Set do
     do: unwrap_or_raise(info(set, force_update))
 
   @doc """
+  Returns underlying `:ets` table reference.
+
+  For use in functions that are not yet implemented. If you find yourself using this, please consider
+  submitting a PR to add the necessary function to `Ets`.`
+
+  ## Examples
+
+      iex> set = Set.new!(name: :my_ets_table)
+      iex> {:ok, table} = Set.get_table(set)
+      iex> info = :ets.info(table)
+      iex> info[:name]
+      :my_ets_table
+
+  """
+  @spec get_table(Set.t()) :: {:ok, Ets.ets_table_reference()}
+  def get_table(%Set{table: table}), do: {:ok, table}
+
+  @doc """
+  Same as `get_table/1` but unwraps or raises on error
+  """
+  @spec get_table!(Set.t()) :: Ets.ets_table_reference()
+  def get_table!(%Set{} = set), do: unwrap_or_raise(get_table(set))
+
+  @doc """
   Puts record into table. Overwrites records for existing keys
 
   ## Examples
