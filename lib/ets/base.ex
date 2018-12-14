@@ -103,11 +103,8 @@ defmodule Ets.Base do
   def insert_new(table, record, return) do
     catch_error do
       catch_table_not_found table do
-        if :ets.insert_new(table, record) do
-          {:ok, return}
-        else
-          {:error, :key_already_exists}
-        end
+        :ets.insert_new(table, record)
+        {:ok, return}
       end
     end
   end
@@ -117,9 +114,11 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi(table, records, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.insert(table, records)
-        {:ok, return}
+      catch_bad_records records do
+        catch_table_not_found table do
+          :ets.insert(table, records)
+          {:ok, return}
+        end
       end
     end
   end
@@ -129,11 +128,10 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi_new(table, records, return) do
     catch_error do
-      catch_table_not_found table do
-        if :ets.insert_new(table, records) do
+      catch_bad_records records do
+        catch_table_not_found table do
+          :ets.insert_new(table, records)
           {:ok, return}
-        else
-          {:error, :key_already_exists}
         end
       end
     end

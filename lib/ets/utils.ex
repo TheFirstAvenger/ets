@@ -67,8 +67,6 @@ defmodule Ets.Utils do
             unquote(do_block)
           rescue
             e in ArgumentError ->
-              IO.puts("key_not_found")
-
               case Ets.Base.lookup(unquote(table), unquote(key)) do
                 {:ok, []} -> {:error, :key_not_found}
                 _ -> reraise(e, __STACKTRACE__)
@@ -77,19 +75,16 @@ defmodule Ets.Utils do
         end
       end
 
-      defmacrop catch_bad_records(records, err \\ :invalid_record, do: do_block) do
+      defmacrop catch_bad_records(records, do: do_block) do
         quote do
           try do
             unquote(do_block)
           rescue
             e in ArgumentError ->
-              if Enum.any?(unquote(records), fn
-                   record when is_tuple(record) -> false
-                   record -> true
-                 end) do
-                reraise(e, __STACKTRACE__)
+              if Enum.any?(unquote(records), &(!is_tuple(&1))) do
+                {:error, :invalid_record}
               else
-                {:error, unquote(err)}
+                reraise(e, __STACKTRACE__)
               end
           end
         end

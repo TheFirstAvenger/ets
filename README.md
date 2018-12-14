@@ -18,6 +18,9 @@ This will be accomplished by:
     * Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
   * All options specified via keyword list.
 * Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
+  * Avoid adding performance overhead by using try/rescue instead of pre-validation
+  * On rescue, try to determine what went wrong (e.g. missing table) and return appropriate error
+  * Fall back to `{:error, :unknown_error}` if unable to determine reason.
 * Appropriate error returns/raises when encountering `$end_of_table`.
 * Providing Elixir friendly documentation.
 * Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
@@ -42,9 +45,10 @@ Ets Tables can be created using the `new` function of the appropriate module, ei
 
 ### Adding/Updating/Retrieving records
 
-To add records to an Ets table, use `put` and its variations `put_new`, `put_multi`, and `put_multi_new`. `put` and `put_multi`
-will overwrite existing records with the same key. The `_new` variations will return an error and not insert if the key
-already exists. The `_multi` variations will insert all records in an atomic and isolated manner (or insert no records if at least one is found with `put_multi_new`)
+To add records to an Ets table, use `put` or `put_new` with a tuple record or a list of tuple records.
+`put` will overwrite existing records with the same key. `put_new` not insert if the key
+already exists. When passing a list of tuple records, all records are inserted in an atomic and
+isolated manner, but with `put_new` no records are inserted if at least one existing key is found.
 
 #### Record Examples
 
@@ -58,15 +62,16 @@ already exists. The `_multi` variations will insert all records in an atomic and
     iex> Set.new(ordered: true)
     iex> |> Set.put!({:a, :b})
     iex> |> Set.put({:a, :c})
-    {:error, :key_already_exists}
+    iex> |> Set.to_list!()
+    [{:a, :b}]
 
 ## Current Progress
 
 * [X] `Ets`
   * [X] All
 * [X] `Ets.Set`
-  * [x] Insert (put)
-  * [x] Lookup (get)
+  * [x] Put (insert)
+  * [x] Get (lookup)
   * [X] Delete
   * [X] Delete All
   * [X] First
@@ -77,7 +82,7 @@ already exists. The `_multi` variations will insert all records in an atomic and
   * [X] Has Key (Member)
   * [X] Info
   * [X] Delete
-  * [X] TableToList (to_list)
+  * [X] To List (tab2list)
   * [X] Wrap
 * [ ] `Ets.Bag`
 
@@ -88,7 +93,7 @@ already exists. The `_multi` variations will insert all records in an atomic and
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.2.2"}
+    {:ets, "~> 0.3.0"}
   ]
 end
 ```

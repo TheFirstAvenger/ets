@@ -119,9 +119,14 @@ defmodule SetTest do
     end
   end
 
-  describe "Insert" do
-    test "insert!/2 raises on error" do
+  describe "Put" do
+    test "put!/2 raises on error" do
       set = Set.new!()
+
+      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :invalid_record}", fn ->
+        Set.put!(set, [:a])
+      end
+
       Set.delete!(set)
 
       assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :table_not_found}", fn ->
@@ -131,11 +136,10 @@ defmodule SetTest do
 
     test "put_new!/2 raises on error" do
       set = Set.new!()
-      Set.put_new!(set, {:a})
 
-      assert_raise RuntimeError,
-                   "Ets.Set.put_new!/2 returned {:error, :key_already_exists}",
-                   fn -> Set.put_new!(set, {:a}) end
+      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :invalid_record}", fn ->
+        Set.put_new!(set, [:a])
+      end
 
       Set.delete!(set)
 
@@ -143,23 +147,6 @@ defmodule SetTest do
                    "Ets.Set.put_new!/2 returned {:error, :table_not_found}",
                    fn ->
                      Set.put_new!(set, {:a})
-                   end
-    end
-
-    test "put_multi_new!/2 raises on error" do
-      set = Set.new!()
-      Set.put_multi_new!(set, [{:a}, {:b}])
-
-      assert_raise RuntimeError,
-                   "Ets.Set.put_multi_new!/2 returned {:error, :key_already_exists}",
-                   fn -> Set.put_multi_new!(set, [{:a}, {:b}]) end
-
-      Set.delete!(set)
-
-      assert_raise RuntimeError,
-                   "Ets.Set.put_multi_new!/2 returned {:error, :table_not_found}",
-                   fn ->
-                     Set.put_multi_new!(set, [{:a}, {:b}])
                    end
     end
   end
