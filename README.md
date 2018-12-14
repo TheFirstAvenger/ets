@@ -8,7 +8,11 @@
 [![Hex.pm package](https://img.shields.io/hexpm/v/ets.svg)](https://hex.pm/packages/ets)
 [![Hex.pm downloads](https://img.shields.io/hexpm/dt/ets.svg)](https://hex.pm/packages/ets)
 
-Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`). The purposes of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
+Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
+
+## Design Goals
+
+The purposes of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
 
 This will be accomplished by:
 
@@ -20,7 +24,7 @@ This will be accomplished by:
 * Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
   * Avoid adding performance overhead by using try/rescue instead of pre-validation
   * On rescue, try to determine what went wrong (e.g. missing table) and return appropriate error
-  * Fall back to `{:error, :unknown_error}` if unable to determine reason.
+  * Fall back to `{:error, :unknown_error}` (logging details) if unable to determine reason.
 * Appropriate error returns/raises when encountering `$end_of_table`.
 * Providing Elixir friendly documentation.
 * Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
@@ -34,7 +38,9 @@ For a list of changes, see the [changelog](CHANGELOG.md)
 
 ### Creating Ets Tables
 
-Ets Tables can be created using the `new` function of the appropriate module, either `Ets.Set` (for ordered and unordered sets) or `Ets.Bag` (for duplicate or non-duplicate bags) (`Ets.Bag` coming soon). See module documentation for more examples and documentation.
+Ets Tables can be created using the `new` function of the appropriate module, either `Ets.Set`
+(for ordered and unordered sets) or `Ets.Bag` (for duplicate or non-duplicate bags).
+See module documentation for more examples and documentation.
 
 #### Create Examples
 
@@ -47,27 +53,54 @@ Ets Tables can be created using the `new` function of the appropriate module, ei
     iex> Set.info!(set)[:name]
     :my_ets_table
 
-### Adding/Updating/Retrieving records
+### Adding/Updating/Retrieving records in Sets
 
 To add records to an Ets table, use `put` or `put_new` with a tuple record or a list of tuple records.
 `put` will overwrite existing records with the same key. `put_new` not insert if the key
 already exists. When passing a list of tuple records, all records are inserted in an atomic and
 isolated manner, but with `put_new` no records are inserted if at least one existing key is found.
 
-#### Record Examples
+#### Set Examples
 
-    iex> Set.new(ordered: true)
+    iex> set = Set.new!(ordered: true)
     iex> |> Set.put!({:a, :b})
-    iex> |> Set.put!({:a, :c})
+    iex> |> Set.put!({:a, :c}) # Overwrites entry from previous line
     iex> |> Set.put!({:c, :d})
-    iex> |> Set.to_list!()
-    [{:a, :c}, {:c, :d}]
+    iex> Set.get(:a)
+    {:ok, {:a, :c}}
+    iex> Set.to_list()
+    {:ok, [{:a, :c}, {:c, :d}]}
 
-    iex> Set.new(ordered: true)
+    iex> Set.new!(ordered: true)
     iex> |> Set.put!({:a, :b})
-    iex> |> Set.put({:a, :c})
+    iex> |> Set.put_new!({:a, :c}) # Doesn't insert due to key :a already existing
     iex> |> Set.to_list!()
     [{:a, :b}]
+
+#### Bag Examples
+
+    iex> bag = Bag.new!()
+    iex> |> Bag.add!({:a, :b})
+    iex> |> Bag.add!({:a, :c})
+    iex> |> Bag.add!({:a, :c}) # Adds dude to duplicate: true
+    iex> |> Bag.add!({:c, :d})
+    iex> Bag.lookup(:a)
+    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}]}
+    iex> Bag.to_list(bag)
+    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
+    iex> Bag.add_new!(bag, {:a, :z}) # Doesn't add due to key :a already existing
+    iex> Bag.to_list(bag)
+    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
+
+    iex> bag = Bag.new!(duplicate: false)
+    iex> |> Bag.add!({:a, :b})
+    iex> |> Bag.add!({:a, :c})
+    iex> |> Bag.add!({:a, :c}) # Doesn't add dude to duplicate: false
+    iex> |> Bag.add!({:c, :d})
+    iex> Bag.lookup(:a)
+    {:ok, [{:a, :b}, {:a, :c}]}
+    iex> Bag.to_list()
+    {:ok, [{:a, :b}, {:a, :c}, {:c, :d}]}
 
 ## Current Progress
 
@@ -88,7 +121,17 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
   * [X] Delete
   * [X] To List (tab2list)
   * [X] Wrap
-* [ ] `Ets.Bag`
+* [X] `Ets.Bag`
+  * [x] Add (insert)
+  * [x] Lookup
+  * [X] Delete
+  * [X] Delete All
+  * [X] Match
+  * [X] Has Key (Member)
+  * [X] Info
+  * [X] Delete
+  * [X] To List (tab2list)
+  * [X] Wrap
 
 ## Installation
 
@@ -97,7 +140,7 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.3.0"}
+    {:ets, "~> 0.4.0"}
   ]
 end
 ```

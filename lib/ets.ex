@@ -4,9 +4,7 @@ defmodule Ets do
   @moduledoc """
   Ets, an Elixir wrapper for Erlang's [`:ets`](http://erlang.org/doc/man/ets.html) module.
 
-  See `Ets.Set` for information on creating and managing Sets.
-
-  `Ets.Bag` coming soon.
+  See `Ets.Set` for information on creating and managing Sets, and `Ets.Bag` for information on creating and managing Bags.
 
   """
 

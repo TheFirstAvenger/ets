@@ -66,6 +66,14 @@ defmodule SetTest do
   end
 
   describe "Rejects bad options" do
+    test "Ordered" do
+      assert_raise RuntimeError,
+                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:ordered, :this_isnt_a_boolean}}}",
+                   fn ->
+                     Set.new!(ordered: :this_isnt_a_boolean)
+                   end
+    end
+
     test "Access" do
       assert_raise RuntimeError,
                    "Ets.Set.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",

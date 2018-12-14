@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+* Implement `Ets.Bag`
+
 ## 0.3.0
 
 * Combined `put_multi` into `put` and `put_multi_new` into `put_new`

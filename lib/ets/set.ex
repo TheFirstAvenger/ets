@@ -30,8 +30,13 @@ defmodule Ets.Set do
       [{:a, :b, :c}, {:d, :e, :f}]
 
   `put` and `put_new` take either a single tuple or a list of tuples. When inserting multiple records,
-  they are inserted in an atomic an isolated manner. `put_new` fails to insert all records if any of
+  they are inserted in an atomic an isolated manner. `put_new` doesn't insert any records if any of
   the new keys already exist in the set.
+
+  To make your set ordered (which maps to the `:ets` table type `:ordered_set`), specify `ordered: true`
+  in the options list. An ordered set will store records in term order of the key of the record. This is
+  helpful when using things like `first`, `last`, `previous`, `next`, and `to_list`, but comes with the penalty of
+  log(n) insert time vs consistent insert time of an unordered set.
 
   """
   use Ets.Utils
@@ -54,10 +59,13 @@ defmodule Ets.Set do
   @doc """
   Creates new set module with the specified options.
 
+  Note that the underlying :ets table will be attached to the process that calls `new` and will be destroyed
+  if that process dies.
+
   Possible options:
 
   * `name:` when specified, creates a named table with the specified name
-  * `ordered:` when true, creates :ordered_set, false creates :set. Defaults to false.
+  * `ordered:` when true, records in set are ordered. Defaults to false.
   * `protection:` :private, :protected, :public
   * `heir:` :none | {heir_pid, heir_data}
   * `keypos:` integer
@@ -87,7 +95,7 @@ defmodule Ets.Set do
         {:ok, {table, info}} -> {:ok, %Set{table: table, info: info, ordered: ordered}}
       end
     else
-      {:error, {:invalid_option, ordered: ordered}}
+      {:error, {:invalid_option, {:ordered, ordered}}}
     end
   end
 
@@ -180,7 +188,7 @@ defmodule Ets.Set do
     do: Base.insert_multi(table, records, set)
 
   @doc """
-  Same as `put/3` but unwraps or raises on error.
+  Same as `put/2` but unwraps or raises on error.
   """
   @spec put!(Set.t(), tuple() | list(tuple())) :: Set.t()
   def put!(%Set{} = set, record_or_records)
@@ -543,8 +551,11 @@ defmodule Ets.Set do
   @spec wrap_existing(Ets.table_identifier()) :: {:ok, Set.t()} | {:error, any()}
   def wrap_existing(table_identifier) do
     case Base.wrap_existing(table_identifier, [:set, :ordered_set]) do
-      {:ok, {table, info}} -> {:ok, %Set{table: table, info: info}}
-      {:error, reason} -> {:error, reason}
+      {:ok, {table, info}} ->
+        {:ok, %Set{table: table, info: info, ordered: info[:type] == :ordered_set}}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
