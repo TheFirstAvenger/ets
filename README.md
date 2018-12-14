@@ -26,6 +26,10 @@ This will be accomplished by:
 * Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
   * `Ets.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
 
+## Changes
+
+For a list of changes, see the [changelog](CHANGELOG.md)
+
 ## Usage
 
 ### Creating Ets Tables
