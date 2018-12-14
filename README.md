@@ -14,7 +14,7 @@ This will be accomplished by:
 
 * Conforming to Elixir standards:
   * Two versions of all functions:
-    * Main function (e.g. `get` returns `{:ok, return}`/`{:error, reason}` tuples.
+    * Main function (e.g. `get`) returns `{:ok, return}`/`{:error, reason}` tuples.
     * Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
   * All options specified via keyword list.
 * Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
