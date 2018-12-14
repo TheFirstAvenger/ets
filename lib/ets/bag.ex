@@ -41,8 +41,8 @@ defmodule Ets.Bag do
   use Ets.Utils
 
   alias Ets.{
-    Base,
-    Bag
+    Bag,
+    Base
   }
 
   @type t :: %__MODULE__{
