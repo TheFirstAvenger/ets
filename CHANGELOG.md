@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0
+
+* Handle and return `:table_already_exists` on `new`
+* Fix spec for `Set.get` to reflect possible nil return
+* Implemented `delete_all` for `Set` and `Bag`
+* Implemented `select` for `Set` and `Bag`
+* Implemented `select_delete` for `Set` and `Bag`
+* Implemented `get_element`/`lookup_element` for `Set` and `Bag`
+* Added `Bag`s to `Ets.all`
+* Added list default option values in `new` documentation
+
 ## 0.4.0
 
 * Implement `Ets.Bag`

@@ -159,6 +159,22 @@ defmodule SetTest do
     end
   end
 
+  describe "Get" do
+    test "get_element!/3 raises on error" do
+      set = Set.new!()
+
+      assert_raise RuntimeError, "Ets.Set.get_element!/3 returned {:error, :key_not_found}", fn ->
+        Set.get_element!(set, :not_a_key, 2)
+      end
+
+      Set.delete!(set)
+
+      assert_raise RuntimeError,
+                   "Ets.Set.get_element!/3 returned {:error, :table_not_found}",
+                   fn -> Set.get_element!(set, :not_a_key, 2) end
+    end
+  end
+
   describe "Match" do
     test "match!/2 raises on error" do
       set = Set.new!()
@@ -183,6 +199,28 @@ defmodule SetTest do
                    "Ets.Set.match!/1 returned {:error, :invalid_continuation}",
                    fn ->
                      Set.match!(:not_a_continuation)
+                   end
+    end
+  end
+
+  describe "Select" do
+    test "select!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError, "Ets.Set.select!/2 returned {:error, :table_not_found}", fn ->
+        Set.select!(set, [])
+      end
+    end
+
+    test "select_delete!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "Ets.Set.select_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.select_delete!(set, [])
                    end
     end
   end
@@ -266,6 +304,17 @@ defmodule SetTest do
       assert_raise RuntimeError, "Ets.Set.delete!/2 returned {:error, :table_not_found}", fn ->
         Set.delete!(set, :a)
       end
+    end
+
+    test "delete_all!/1 raises on error" do
+      set = Set.new!()
+      Set.delete!(set)
+
+      assert_raise RuntimeError,
+                   "Ets.Set.delete_all!/1 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.delete_all!(set)
+                   end
     end
   end
 

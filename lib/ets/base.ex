@@ -34,13 +34,15 @@ defmodule Ets.Base do
 
       case parse_opts(starting_opts, opts) do
         {:ok, parsed_opts} ->
-          info =
-            name
-            |> :ets.new(parsed_opts)
-            |> :ets.info()
+          catch_table_already_exists name do
+            info =
+              name
+              |> :ets.new(parsed_opts)
+              |> :ets.info()
 
-          ref = info[:id]
-          {:ok, {ref, info}}
+            ref = info[:id]
+            {:ok, {ref, info}}
+          end
 
         {:error, reason} ->
           {:error, reason}
@@ -159,6 +161,20 @@ defmodule Ets.Base do
   end
 
   @doc false
+  @spec lookup_element(Ets.table_identifier(), any(), non_neg_integer()) ::
+          {:ok, any()} | {:error, any()}
+  def lookup_element(table, key, pos) do
+    catch_error do
+      catch_key_not_found table, key do
+        catch_table_not_found table do
+          vals = :ets.lookup_element(table, key, pos)
+          {:ok, vals}
+        end
+      end
+    end
+  end
+
+  @doc false
   @spec match(Ets.table_identifier(), Ets.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
   def match(table, pattern) do
     catch_error do
@@ -197,6 +213,29 @@ defmodule Ets.Base do
       rescue
         ArgumentError ->
           {:error, :invalid_continuation}
+      end
+    end
+  end
+
+  @doc false
+  @spec select(Ets.table_identifier(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  def select(table, spec) when is_list(spec) do
+    catch_error do
+      catch_table_not_found table do
+        matches = :ets.select(table, spec)
+        {:ok, matches}
+      end
+    end
+  end
+
+  @doc false
+  @spec select_delete(Ets.table_identifier(), Ets.match_spec()) ::
+          {:ok, non_neg_integer()} | {:error, any()}
+  def select_delete(table, spec) when is_list(spec) do
+    catch_error do
+      catch_table_not_found table do
+        count = :ets.select_delete(table, spec)
+        {:ok, count}
       end
     end
   end
@@ -280,6 +319,17 @@ defmodule Ets.Base do
     catch_error do
       catch_table_not_found table do
         :ets.delete(table, key)
+        {:ok, return}
+      end
+    end
+  end
+
+  @doc false
+  @spec delete_all_records(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
+  def delete_all_records(table, return) do
+    catch_error do
+      catch_table_not_found table do
+        :ets.delete_all_objects(table)
         {:ok, return}
       end
     end

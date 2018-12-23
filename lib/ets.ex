@@ -11,7 +11,8 @@ defmodule Ets do
   @type table_name :: atom()
   @type ets_table_reference :: :ets.tid()
   @type table_identifier :: table_name | ets_table_reference
-  @type match_pattern :: atom() | tuple()
+  @type match_pattern :: :ets.match_pattern()
+  @type matc_spec :: :ets.match_spec()
 
   @doc """
   Returns list of current :ets tables, each wrapped as either `Ets.Set` or `Ets.Bag`.
@@ -34,12 +35,14 @@ defmodule Ets do
       all =
         :ets.all()
         |> Enum.map(fn tid ->
-          case Ets.Set.wrap_existing(tid) do
-            {:ok, set} -> set
-            {:error, _} -> nil
+          tid
+          |> :ets.info()
+          |> Keyword.get(:type)
+          |> case do
+            type when type in [:set, :ordered_set] -> Ets.Set.wrap_existing!(tid)
+            type when type in [:bag, :duplicate_bag] -> Ets.Bag.wrap_existing!(tid)
           end
         end)
-        |> Enum.filter(&Kernel.!(is_nil(&1)))
 
       {:ok, all}
     end

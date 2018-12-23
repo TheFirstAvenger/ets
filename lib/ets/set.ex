@@ -65,13 +65,13 @@ defmodule Ets.Set do
   Possible options:
 
   * `name:` when specified, creates a named table with the specified name
-  * `ordered:` when true, records in set are ordered. Defaults to false.
-  * `protection:` :private, :protected, :public
-  * `heir:` :none | {heir_pid, heir_data}
-  * `keypos:` integer
-  * `read_concurrency:` boolean
-  * `write_concurrency:` boolean
-  * `compressed:` boolean
+  * `ordered:` when true, records in set are ordered (default false)
+  * `protection:` :private, :protected, :public (default :protected)
+  * `heir:` :none | {heir_pid, heir_data} (default :none)
+  * `keypos:` integer (default 1)
+  * `read_concurrency:` boolean (default false)
+  * `write_concurrency:` boolean (default false)
+  * `compressed:` boolean (default false)
 
   ## Examples
 
@@ -235,7 +235,7 @@ defmodule Ets.Set do
       {:ok, {:d, :e, :f}}
 
   """
-  @spec get(Set.t(), any(), any()) :: {:ok, tuple()} | {:error, any()}
+  @spec get(Set.t(), any(), any()) :: {:ok, tuple() | nil} | {:error, any()}
   def get(%Set{table: table}, key, default \\ nil) do
     case Base.lookup(table, key) do
       {:ok, []} -> {:ok, default}
@@ -248,8 +248,29 @@ defmodule Ets.Set do
   @doc """
   Same as `get/3` but unwraps or raises on error.
   """
-  @spec get!(Set.t(), any(), any()) :: tuple()
+  @spec get!(Set.t(), any(), any()) :: tuple() | nil
   def get!(%Set{} = set, key, default \\ nil), do: unwrap_or_raise(get(set, key, default))
+
+  @doc """
+  Returns element in specified position of record with specified key.
+
+  ## Examples
+
+      iex> Set.new!()
+      iex> |> Set.put!({:a, :b, :c})
+      iex> |> Set.put!({:d, :e, :f})
+      iex> |> Set.get_element(:d, 2)
+      {:ok, :e}
+
+  """
+  @spec get_element(Set.t(), any(), non_neg_integer()) :: {:ok, any()} | {:error, any()}
+  def get_element(%Set{table: table}, key, pos), do: Base.lookup_element(table, key, pos)
+
+  @doc """
+  Same as `get_element/3` but unwraps or raises on error.
+  """
+  @spec get_element!(Set.t(), any(), non_neg_integer()) :: any()
+  def get_element!(%Set{} = set, key, pos), do: unwrap_or_raise(get_element(set, key, pos))
 
   @doc """
   Returns records in the specified Set that match the specified pattern.
@@ -323,6 +344,57 @@ defmodule Ets.Set do
   """
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
+
+  @doc """
+  Returns records in the specified Set that match the specified match specification.
+
+  For more information on the match specification, see the [erlang documentation](http://erlang.org/doc/man/ets.html#select-2)
+
+  ## Examples
+
+      iex> Set.new!(ordered: true)
+      iex> |> Set.put!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Set.select([{{:"$1", :b, :"$2", :_},[],[:"$$"]}])
+      {:ok, [[:a, :c], [:h, :i]]}
+
+  """
+  @spec select(Set.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  def select(%Set{table: table}, spec) when is_list(spec),
+    do: Base.select(table, spec)
+
+  @doc """
+  Same as `select/2` but unwraps or raises on error.
+  """
+  @spec select!(Set.t(), Ets.match_spec()) :: [tuple()]
+  def select!(%Set{} = set, spec) when is_list(spec),
+    do: unwrap_or_raise(select(set, spec))
+
+  @doc """
+  Deletes records in the specified Set that match the specified match specification.
+
+  For more information on the match specification, see the [erlang documentation](http://erlang.org/doc/man/ets.html#select_delete-2)
+
+  ## Examples
+
+      iex> set = Set.new!(ordered: true)
+      iex> set
+      iex> |> Set.put!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :c, :h}])
+      iex> |> Set.select_delete([{{:"$1", :b, :"$2", :_},[{:"==", :"$2", :c}],[true]}])
+      {:ok, 2}
+      iex> Set.to_list!(set)
+      [{:e, :c, :f, :g}]
+
+  """
+  @spec select_delete(Set.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  def select_delete(%Set{table: table}, spec) when is_list(spec),
+    do: Base.select_delete(table, spec)
+
+  @doc """
+  Same as `select_delete/2` but unwraps or raises on error.
+  """
+  @spec select_delete!(Set.t(), Ets.match_spec()) :: [tuple()]
+  def select_delete!(%Set{} = set, spec) when is_list(spec),
+    do: unwrap_or_raise(select_delete(set, spec))
 
   @doc """
   Determines if specified key exists in specified set.
@@ -536,6 +608,32 @@ defmodule Ets.Set do
   """
   @spec delete!(Set.t(), any()) :: Set.t()
   def delete!(%Set{} = set, key), do: unwrap_or_raise(delete(set, key))
+
+  @doc """
+  Deletes all records in specified Set.
+
+  ## Examples
+
+      iex> set = Set.new!()
+      iex> set
+      iex> |> Set.put!({:a, :b, :c})
+      iex> |> Set.put!({:b, :b, :c})
+      iex> |> Set.put!({:c, :b, :c})
+      iex> |> Set.to_list!()
+      [{:c, :b, :c}, {:b, :b, :c}, {:a, :b, :c}]
+      iex> Set.delete_all(set)
+      iex> Set.to_list!(set)
+      []
+
+  """
+  @spec delete_all(Set.t()) :: {:ok, Set.t()} | {:error, any()}
+  def delete_all(%Set{table: table} = set), do: Base.delete_all_records(table, set)
+
+  @doc """
+  Same as `delete_all/1` but unwraps or raises on error.
+  """
+  @spec delete_all!(Set.t()) :: Set.t()
+  def delete_all!(%Set{} = set), do: unwrap_or_raise(delete_all(set))
 
   @doc """
   Wraps an existing :ets :set or :ordered_set in a Set struct.

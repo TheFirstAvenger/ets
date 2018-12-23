@@ -64,13 +64,13 @@ defmodule Ets.Bag do
   Possible options:
 
   * `name:` when specified, creates a named table with the specified name
-  * `duplicate:` when true, allows multiple identical records. Defaults to true.
-  * `protection:` :private, :protected, :public
-  * `heir:` :none | {heir_pid, heir_data}
-  * `keypos:` integer
-  * `read_concurrency:` boolean
-  * `write_concurrency:` boolean
-  * `compressed:` boolean
+  * `duplicate:` when true, allows multiple identical records. (default true)
+  * `protection:` :private, :protected, :public (default :protected)
+  * `heir:` :none | {heir_pid, heir_data} (default :none)
+  * `keypos:` integer (default 1)
+  * `read_concurrency:` boolean (default false)
+  * `write_concurrency:` boolean (default false)
+  * `compressed:` boolean (default false)
 
   ## Examples
 
@@ -256,6 +256,28 @@ defmodule Ets.Bag do
   def lookup!(%Bag{} = bag, key), do: unwrap_or_raise(lookup(bag, key))
 
   @doc """
+  Returns list of elements in specified position of records with specified key.
+
+  ## Examples
+
+      iex> Bag.new!()
+      iex> |> Bag.add!({:a, :b, :c})
+      iex> |> Bag.add!({:d, :e, :f})
+      iex> |> Bag.add!({:d, :h, :i})
+      iex> |> Bag.lookup_element(:d, 2)
+      {:ok, [:e, :h]}
+
+  """
+  @spec lookup_element(Bag.t(), any(), non_neg_integer()) :: {:ok, [any()]} | {:error, any()}
+  def lookup_element(%Bag{table: table}, key, pos), do: Base.lookup_element(table, key, pos)
+
+  @doc """
+  Same as `lookup_element/3` but unwraps or raises on error.
+  """
+  @spec lookup_element!(Bag.t(), any(), non_neg_integer()) :: [any()]
+  def lookup_element!(%Bag{} = bag, key, pos), do: unwrap_or_raise(lookup_element(bag, key, pos))
+
+  @doc """
   Returns records in the Bag that match the specified pattern.
 
   For more information on the match pattern, see the [erlang documentation](http://erlang.org/doc/man/ets.html#match-2)
@@ -327,6 +349,57 @@ defmodule Ets.Bag do
   """
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
+
+  @doc """
+  Returns records in the specified Bag that match the specified match specification.
+
+  For more information on the match specification, see the [erlang documentation](http://erlang.org/doc/man/ets.html#select-2)
+
+  ## Examples
+
+      iex> Bag.new!()
+      iex> |> Bag.add!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Bag.select([{{:"$1", :b, :"$2", :_},[],[:"$$"]}])
+      {:ok, [[:h, :i], [:a, :c]]}
+
+  """
+  @spec select(Bag.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  def select(%Bag{table: table}, spec) when is_list(spec),
+    do: Base.select(table, spec)
+
+  @doc """
+  Same as `select/2` but unwraps or raises on error.
+  """
+  @spec select!(Bag.t(), Ets.match_spec()) :: [tuple()]
+  def select!(%Bag{} = bag, spec) when is_list(spec),
+    do: unwrap_or_raise(select(bag, spec))
+
+  @doc """
+  Deletes records in the specified Bag that match the specified match specification.
+
+  For more information on the match specification, see the [erlang documentation](http://erlang.org/doc/man/ets.html#select_delete-2)
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> bag
+      iex> |> Bag.add!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :c, :h}])
+      iex> |> Bag.select_delete([{{:"$1", :b, :"$2", :_},[{:"==", :"$2", :c}],[true]}])
+      {:ok, 2}
+      iex> Bag.to_list!(bag)
+      [{:e, :c, :f, :g}]
+
+  """
+  @spec select_delete(Bag.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  def select_delete(%Bag{table: table}, spec) when is_list(spec),
+    do: Base.select_delete(table, spec)
+
+  @doc """
+  Same as `select_delete/2` but unwraps or raises on error.
+  """
+  @spec select_delete!(Bag.t(), Ets.match_spec()) :: [tuple()]
+  def select_delete!(%Bag{} = bag, spec) when is_list(spec),
+    do: unwrap_or_raise(select_delete(bag, spec))
 
   @doc """
   Determines if specified key exists in specified bag.
@@ -413,6 +486,32 @@ defmodule Ets.Bag do
   """
   @spec delete!(Bag.t(), any()) :: Bag.t()
   def delete!(%Bag{} = bag, key), do: unwrap_or_raise(delete(bag, key))
+
+  @doc """
+  Deletes all records in specified Bag.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> bag
+      iex> |> Bag.add!({:a, :b, :c})
+      iex> |> Bag.add!({:b, :b, :c})
+      iex> |> Bag.add!({:c, :b, :c})
+      iex> |> Bag.to_list!()
+      [{:c, :b, :c}, {:b, :b, :c}, {:a, :b, :c}]
+      iex> Bag.delete_all(bag)
+      iex> Bag.to_list!(bag)
+      []
+
+  """
+  @spec delete_all(Bag.t()) :: {:ok, Bag.t()} | {:error, any()}
+  def delete_all(%Bag{table: table} = bag), do: Base.delete_all_records(table, bag)
+
+  @doc """
+  Same as `delete_all/1` but unwraps or raises on error.
+  """
+  @spec delete_all!(Bag.t()) :: Bag.t()
+  def delete_all!(%Bag{} = bag), do: unwrap_or_raise(delete_all(bag))
 
   @doc """
   Wraps an existing :ets :bag or :duplicate_bag in a Bag struct.

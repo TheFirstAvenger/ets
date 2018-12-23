@@ -159,6 +159,24 @@ defmodule BagTest do
     end
   end
 
+  describe "Lookup" do
+    test "lookup_element!/3 raises on error" do
+      bag = Bag.new!()
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.lookup_element!/3 returned {:error, :key_not_found}",
+                   fn ->
+                     Bag.lookup_element!(bag, :not_a_key, 2)
+                   end
+
+      Bag.delete!(bag)
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.lookup_element!/3 returned {:error, :table_not_found}",
+                   fn -> Bag.lookup_element!(bag, :not_a_key, 2) end
+    end
+  end
+
   describe "Match" do
     test "match!/2 raises on error" do
       bag = Bag.new!()
@@ -183,6 +201,28 @@ defmodule BagTest do
                    "Ets.Bag.match!/1 returned {:error, :invalid_continuation}",
                    fn ->
                      Bag.match!(:not_a_continuation)
+                   end
+    end
+  end
+
+  describe "Select" do
+    test "select!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError, "Ets.Bag.select!/2 returned {:error, :table_not_found}", fn ->
+        Bag.select!(bag, [])
+      end
+    end
+
+    test "select_delete!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.select_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.select_delete!(bag, [])
                    end
     end
   end
@@ -226,6 +266,17 @@ defmodule BagTest do
       assert_raise RuntimeError, "Ets.Bag.delete!/2 returned {:error, :table_not_found}", fn ->
         Bag.delete!(bag, :a)
       end
+    end
+
+    test "delete_all!/1 raises on error" do
+      bag = Bag.new!()
+      Bag.delete!(bag)
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.delete_all!/1 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.delete_all!(bag)
+                   end
     end
   end
 

@@ -109,6 +109,7 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 * [X] `Ets.Set`
   * [x] Put (insert)
   * [x] Get (lookup)
+  * [x] Get Element
   * [X] Delete
   * [X] Delete All
   * [X] First
@@ -116,6 +117,8 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
   * [X] Last
   * [X] Previous
   * [X] Match
+  * [X] Select
+  * [X] Select Delete
   * [X] Has Key (Member)
   * [X] Info
   * [X] Delete
@@ -124,9 +127,12 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 * [X] `Ets.Bag`
   * [x] Add (insert)
   * [x] Lookup
+  * [x] Lookup Element
   * [X] Delete
   * [X] Delete All
   * [X] Match
+  * [X] Select
+  * [X] Select Delete
   * [X] Has Key (Member)
   * [X] Info
   * [X] Delete
@@ -140,7 +146,7 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.4.0"}
+    {:ets, "~> 0.5.0"}
   ]
 end
 ```
