@@ -19,7 +19,12 @@ defmodule Ets.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
-      aliases: aliases()
+      aliases: aliases(),
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore.exs",
+        list_unused_filters: true,
+        plt_file: {:no_warn, "priv/plts/ets.plt"}
+      ]
     ]
   end
 
