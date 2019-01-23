@@ -170,7 +170,7 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.5.0"}
+    {:ets, "~> 0.6.0"}
   ]
 end
 ```
