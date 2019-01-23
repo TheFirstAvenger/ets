@@ -3,29 +3,36 @@ defmodule SetTest do
   alias Ets.Set
   doctest Ets.Set
 
-  describe "Named Tables Start" do
-    test "Ordered Set" do
+  describe "New" do
+    test "Named Ordered Set" do
       name = table_name()
       assert %Set{} = Set.new!(name: name, ordered: true)
       assert %{name: ^name, named_table: true, type: :ordered_set} = table_info(name)
     end
 
-    test "Set" do
+    test "Named Set" do
       name = table_name()
       assert %Set{} = Set.new!(name: name)
       assert %{name: ^name, named_table: true, type: :set} = table_info(name)
     end
-  end
 
-  describe "Unnamed Tables Start" do
-    test "Ordered Set" do
+    test "Unnamed Ordered Set" do
       assert %Set{} = set = Set.new!(ordered: true)
       assert %{named_table: false, type: :ordered_set} = table_info(set)
     end
 
-    test "Set" do
+    test "Unnamed Set" do
       assert %Set{} = set = Set.new!()
       assert %{named_table: false, type: :set} = table_info(set)
+    end
+
+    test "rejects existing name" do
+      name = table_name()
+      assert %Set{} = Set.new!(name: name)
+
+      assert_raise(RuntimeError, "Ets.Set.new!/1 returned {:error, :table_already_exists}", fn ->
+        Set.new!(name: name)
+      end)
     end
   end
 
@@ -127,8 +134,69 @@ defmodule SetTest do
     end
   end
 
+  describe "Info" do
+    test "returns correct information" do
+      set = Set.new!(keypos: 4, read_concurrency: false, compressed: true)
+      info = set |> Set.info!() |> Enum.into(%{})
+      assert table_info(set) == info
+
+      assert %{keypos: 4, read_concurrency: false, compressed: true} = info
+    end
+
+    test "force update flag" do
+      set = Set.new!()
+      memory = Set.info!(set)[:memory]
+
+      1..10
+      |> Enum.each(fn _ -> Set.put(set, {:rand.uniform(), :rand.uniform()}) end)
+
+      assert memory == Set.info!(set)[:memory]
+      assert memory != Set.info!(set, true)[:memory]
+    end
+
+    test "handles missing table" do
+      set = Set.new!()
+      Set.delete!(set)
+
+      assert_raise RuntimeError, "Ets.Set.info!/2 returned {:error, :table_not_found}", fn ->
+        Set.info!(set, true)
+      end
+    end
+  end
+
+  describe "Get Table" do
+    test "returns table" do
+      table = :ets.new(nil, [:set])
+      set = Set.wrap_existing!(table)
+      assert table == Set.get_table!(set)
+    end
+  end
+
   describe "Put" do
-    test "put!/2 raises on error" do
+    test "adds single entry to table" do
+      set = Set.new!()
+      assert [] == Set.to_list!(set)
+      Set.put!(set, {:a, :b})
+      assert [{:a, :b}] == Set.to_list!(set)
+    end
+
+    test "adds multiple entries to table" do
+      set = Set.new!(ordered: true)
+      assert [] == Set.to_list!(set)
+      Set.put!(set, [{:a, :b}, {:c, :d}, {:e, :f}])
+      assert [{:a, :b}, {:c, :d}, {:e, :f}] == Set.to_list!(set)
+    end
+
+    test "replaces existing entry" do
+      set = Set.new!()
+      assert [] == Set.to_list!(set)
+      Set.put!(set, {:a, :b})
+      assert [{:a, :b}] == Set.to_list!(set)
+      Set.put!(set, {:a, :c})
+      assert [{:a, :c}] == Set.to_list!(set)
+    end
+
+    test "raises on error" do
       set = Set.new!()
 
       assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :invalid_record}", fn ->
@@ -141,8 +209,33 @@ defmodule SetTest do
         Set.put!(set, {:a})
       end
     end
+  end
 
-    test "put_new!/2 raises on error" do
+  describe "Put New" do
+    test "adds single entry to table" do
+      set = Set.new!()
+      assert [] == Set.to_list!(set)
+      Set.put_new!(set, {:a, :b})
+      assert [{:a, :b}] == Set.to_list!(set)
+    end
+
+    test "adds multiple entries to table" do
+      set = Set.new!(ordered: true)
+      assert [] == Set.to_list!(set)
+      Set.put_new!(set, [{:a, :b}, {:c, :d}, {:e, :f}])
+      assert [{:a, :b}, {:c, :d}, {:e, :f}] == Set.to_list!(set)
+    end
+
+    test "doesn't replace existing entry" do
+      set = Set.new!()
+      assert [] == Set.to_list!(set)
+      Set.put_new!(set, {:a, :b})
+      assert [{:a, :b}] == Set.to_list!(set)
+      Set.put_new!(set, {:a, :c})
+      assert [{:a, :b}] == Set.to_list!(set)
+    end
+
+    test "raises on error" do
       set = Set.new!()
 
       assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :invalid_record}", fn ->
@@ -160,7 +253,54 @@ defmodule SetTest do
   end
 
   describe "Get" do
-    test "get_element!/3 raises on error" do
+    test "returns correct value" do
+      set = Set.new!()
+      Set.put(set, {:a, :b})
+      assert {:a, :b} = Set.get!(set, :a)
+    end
+
+    test "returns correct value with default" do
+      set = Set.new!()
+      Set.put(set, {:a, :b})
+      assert {:a, :b} = Set.get!(set, :a, :asdf)
+    end
+
+    test "returns nil when value missing" do
+      set = Set.new!()
+      assert nil == Set.get!(set, :a)
+    end
+
+    test "returns default when value missing and default specified" do
+      set = Set.new!()
+      assert :asdf == Set.get!(set, :a, :asdf)
+    end
+
+    test "raises on error" do
+      set = Set.new!()
+      Set.delete!(set)
+
+      assert_raise RuntimeError, "Ets.Set.get!/3 returned {:error, :table_not_found}", fn ->
+        Set.get!(set, :a)
+      end
+    end
+  end
+
+  describe "get_element" do
+    test "returns correct elements" do
+      set = Set.new!()
+      Set.put!(set, {:a, :b, :c, :d})
+      Set.put!(set, {:e, :f, :g, :h})
+      assert :a = Set.get_element!(set, :a, 1)
+      assert :b = Set.get_element!(set, :a, 2)
+      assert :c = Set.get_element!(set, :a, 3)
+      assert :d = Set.get_element!(set, :a, 4)
+      assert :e = Set.get_element!(set, :e, 1)
+      assert :f = Set.get_element!(set, :e, 2)
+      assert :g = Set.get_element!(set, :e, 3)
+      assert :h = Set.get_element!(set, :e, 4)
+    end
+
+    test "raises on error" do
       set = Set.new!()
 
       assert_raise RuntimeError, "Ets.Set.get_element!/3 returned {:error, :key_not_found}", fn ->
@@ -325,14 +465,6 @@ defmodule SetTest do
                    fn ->
                      Set.wrap_existing!(:not_a_table)
                    end
-    end
-  end
-
-  describe "Get Table" do
-    test "get_table!/1 returns table" do
-      table = :ets.new(nil, [:set])
-      set = Set.wrap_existing!(table)
-      assert table == Set.get_table!(set)
     end
   end
 

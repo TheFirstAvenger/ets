@@ -29,6 +29,8 @@ This will be accomplished by:
 * Providing Elixir friendly documentation.
 * Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
   * `Ets.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
+* Providing abstractions on top of the two base modules for specific usages
+  * `Ets.Set.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
 
 ## Changes
 
@@ -104,6 +106,8 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 
 ## Current Progress
 
+### Base Modules
+
 * [X] `Ets`
   * [X] All
 * [X] `Ets.Set`
@@ -138,6 +142,26 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
   * [X] Delete
   * [X] To List (tab2list)
   * [X] Wrap
+
+### Abstractions
+
+* [X] `Ets.Set.KeyValueSet`
+  * [x] New
+  * [x] Wrap Existing
+  * [x] Put
+  * [x] Put New
+  * [x] Get
+  * [x] Info
+  * [x] Get Table
+  * [x] First
+  * [x] Last
+  * [x] Next
+  * [x] Previous
+  * [x] Has Key
+  * [x] Delete
+  * [x] Delete Key
+  * [x] Delete All
+  * [x] To List
 
 ## Installation
 

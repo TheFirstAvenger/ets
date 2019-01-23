@@ -6,13 +6,15 @@ defmodule Ets do
 
   See `Ets.Set` for information on creating and managing Sets, and `Ets.Bag` for information on creating and managing Bags.
 
+  See `Ets.Set.KeyValueSet` for an abstraction which provides standard key/value interaction with Sets.
+
   """
 
   @type table_name :: atom()
-  @type ets_table_reference :: :ets.tid()
-  @type table_identifier :: table_name | ets_table_reference
+  @type table_reference :: :ets.tid()
+  @type table_identifier :: table_name | table_reference
   @type match_pattern :: :ets.match_pattern()
-  @type matc_spec :: :ets.match_spec()
+  @type match_spec :: :ets.match_spec()
 
   @doc """
   Returns list of current :ets tables, each wrapped as either `Ets.Set` or `Ets.Bag`.

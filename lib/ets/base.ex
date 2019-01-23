@@ -20,7 +20,7 @@ defmodule Ets.Base do
 
   @doc false
   @spec new_table(table_types(), keyword()) ::
-          {:ok, {Ets.ets_table_reference(), keyword()}} | {:error, any()}
+          {:ok, {Ets.table_reference(), keyword()}} | {:error, any()}
   def new_table(type, opts) when type in @table_types and is_list(opts) do
     {opts, name} = take_opt(opts, :name, nil)
 
@@ -337,7 +337,7 @@ defmodule Ets.Base do
 
   @doc false
   @spec wrap_existing(Ets.table_identifier(), [table_types]) ::
-          {:ok, {Ets.ets_table_reference(), keyword()}} | {:error, any()}
+          {:ok, {Ets.table_reference(), keyword()}} | {:error, any()}
   def wrap_existing(table, valid_types) do
     catch_error do
       catch_table_not_found table do

@@ -156,14 +156,14 @@ defmodule Ets.Set do
       :my_ets_table
 
   """
-  @spec get_table(Set.t()) :: {:ok, Ets.ets_table_reference()}
+  @spec get_table(Set.t()) :: {:ok, Ets.table_reference()}
   def get_table(%Set{table: table}), do: {:ok, table}
 
   @doc """
   Same as `get_table/1` but unwraps or raises on error
   """
-  @spec get_table!(Set.t()) :: Ets.ets_table_reference()
-  def get_table!(%Set{} = set), do: unwrap_or_raise(get_table(set))
+  @spec get_table!(Set.t()) :: Ets.table_reference()
+  def get_table!(%Set{} = set), do: unwrap(get_table(set))
 
   @doc """
   Puts tuple record or list of tuple records into table. Overwrites records for existing key(s).
@@ -385,14 +385,14 @@ defmodule Ets.Set do
       [{:e, :c, :f, :g}]
 
   """
-  @spec select_delete(Set.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec select_delete(Set.t(), Ets.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(%Set{table: table}, spec) when is_list(spec),
     do: Base.select_delete(table, spec)
 
   @doc """
   Same as `select_delete/2` but unwraps or raises on error.
   """
-  @spec select_delete!(Set.t(), Ets.match_spec()) :: [tuple()]
+  @spec select_delete!(Set.t(), Ets.match_spec()) :: non_neg_integer()
   def select_delete!(%Set{} = set, spec) when is_list(spec),
     do: unwrap_or_raise(select_delete(set, spec))
 

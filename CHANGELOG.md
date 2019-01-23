@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+* Add `Ets.Set.KeyValueSet`
+
 ## 0.5.0
 
 * Handle and return `:table_already_exists` on `new`

@@ -155,14 +155,14 @@ defmodule Ets.Bag do
       :my_ets_table
 
   """
-  @spec get_table(Bag.t()) :: {:ok, Ets.ets_table_reference()}
+  @spec get_table(Bag.t()) :: {:ok, Ets.table_reference()}
   def get_table(%Bag{table: table}), do: {:ok, table}
 
   @doc """
   Same as `get_table/1` but unwraps or raises on error
   """
-  @spec get_table!(Bag.t()) :: Ets.ets_table_reference()
-  def get_table!(%Bag{} = bag), do: unwrap_or_raise(get_table(bag))
+  @spec get_table!(Bag.t()) :: Ets.table_reference()
+  def get_table!(%Bag{} = bag), do: unwrap(get_table(bag))
 
   @doc """
   Adds tuple record or list of tuple records to table.
@@ -390,14 +390,14 @@ defmodule Ets.Bag do
       [{:e, :c, :f, :g}]
 
   """
-  @spec select_delete(Bag.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec select_delete(Bag.t(), Ets.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(%Bag{table: table}, spec) when is_list(spec),
     do: Base.select_delete(table, spec)
 
   @doc """
   Same as `select_delete/2` but unwraps or raises on error.
   """
-  @spec select_delete!(Bag.t(), Ets.match_spec()) :: [tuple()]
+  @spec select_delete!(Bag.t(), Ets.match_spec()) :: non_neg_integer()
   def select_delete!(%Bag{} = bag, spec) when is_list(spec),
     do: unwrap_or_raise(select_delete(bag, spec))
 

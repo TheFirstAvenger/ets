@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/ets/set/key_value_set/macros.ex",
+    "lib/ets/utils.ex"
+  ]
+}
