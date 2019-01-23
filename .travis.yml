@@ -10,10 +10,11 @@ before_script:
   - mix format --check-formatted
   - mix compile --warnings-as-errors
   - mix credo --strict
+  - mix dialyzer --halt-exit-status
 script:
   - mix test
 after_script:
   - mix coveralls.travis
 cache:
   directories:
-  - assets/node_modules
+  - priv/plts
