@@ -12,7 +12,7 @@ Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
 
 ## Design Goals
 
-The purposes of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
+The purpose of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
 
 This will be accomplished by:
 
