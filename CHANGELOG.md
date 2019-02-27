@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+* Add documentation for choosing which table to use
+
 ## 0.6.0
 
 * Add `Ets.Set.KeyValueSet`
@@ -12,8 +16,8 @@
 * Implemented `select` for `Set` and `Bag`
 * Implemented `select_delete` for `Set` and `Bag`
 * Implemented `get_element`/`lookup_element` for `Set` and `Bag`
-* Added `Bag`s to `Ets.all`
-* Added list default option values in `new` documentation
+* Add `Bag`s to `Ets.all`
+* Add list default option values in `new` documentation
 
 ## 0.4.0
 

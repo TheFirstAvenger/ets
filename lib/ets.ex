@@ -8,6 +8,19 @@ defmodule Ets do
 
   See `Ets.Set.KeyValueSet` for an abstraction which provides standard key/value interaction with Sets.
 
+  ## What type of `Ets` table should I use?
+
+  ## Set
+
+  If you need your key column to be unique, then you should use a Set. If you just want a simple key/value store,
+  then use an `Ets.Set.KeyValueSet`, but if you want to store full tuple records, use an `Ets.Set`. If you want your
+  records ordered by key value, which adds some performance overhead on insertion, set `ordered: true` when creating the Set (defaults to false).
+
+  ## Bag
+
+  If you do not need your key column to be unique, then you should use an `Ets.Bag`, and if you want to prevent exact duplicate
+  records from being inserted, which adds some performance overhead on insertion, set duplicate: false when creating the Bag
+  (defaults to true).
   """
 
   @type table_name :: atom()

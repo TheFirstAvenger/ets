@@ -42,7 +42,7 @@ For a list of changes, see the [changelog](CHANGELOG.md)
 
 Ets Tables can be created using the `new` function of the appropriate module, either `Ets.Set`
 (for ordered and unordered sets) or `Ets.Bag` (for duplicate or non-duplicate bags).
-See module documentation for more examples and documentation.
+See module documentation for more examples and documentation, including a guide on [What type of Ets table should I use?](lib/ets.ex).
 
 #### Create Examples
 
