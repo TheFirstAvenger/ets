@@ -37,8 +37,29 @@ defmodule Ets.Bag do
   instead). Note that `duplicate: false` will increase the time it takes to add records as the table must be checked for
   duplicates prior to insert. `duplicate: true` maps to the `:ets` table type `:duplicate_bag`, `duplicate: false` maps to `:bag`.
 
+  Bags implement [`Access`] _behaviour_.
+
+  ## Examples
+
+      iex> bag = Bag.new!(keypos: 2)
+      iex> Bag.add!(bag, [{:a, :b, :c}, {:d, :e, :f}])
+      iex> get_in(bag, [:b])
+      [{:a, :b, :c}]
+      iex> get_in(bag, [:z])
+      nil
+      iex> with {[{:a, :b, :c}], bag} <-
+      ...>   pop_in(bag, [:b]), do: Bag.to_list!(bag)
+      [{:d, :e, :f}]
+      iex> with {nil, bag} <- pop_in(bag, [:z]), do: Bag.to_list!(bag)
+      [{:d, :e, :f}]
+      iex> with {[{:d, :e, :f}], bag} <-
+      ...>     get_and_update_in(bag, [:e], &{&1, [{:a, :b, :c}]}),
+      ...>   do: Bag.to_list!(bag)
+      [{:a, :b, :c}]
   """
+
   use Ets.Utils
+  use Ets.Access, find: :lookup, delete: :delete!, add: :add!
 
   alias Ets.{
     Bag,
