@@ -44,18 +44,23 @@ defmodule Ets.Bag do
       iex> bag = Bag.new!(keypos: 2)
       iex> Bag.add!(bag, [{:a, :b, :c}, {:d, :e, :f}])
       iex> get_in(bag, [:b])
-      [{:a, :b, :c}]
+      [{:a, :c}]
       iex> get_in(bag, [:z])
       nil
-      iex> with {[{:a, :b, :c}], bag} <-
+      iex> with {[{:a, :c}], bag} <-
       ...>   pop_in(bag, [:b]), do: Bag.to_list!(bag)
       [{:d, :e, :f}]
       iex> with {nil, bag} <- pop_in(bag, [:z]), do: Bag.to_list!(bag)
       [{:d, :e, :f}]
-      iex> with {[{:d, :e, :f}], bag} <-
+      iex> with {[{:d, :f}], bag} <-
       ...>     get_and_update_in(bag, [:e], &{&1, [{:a, :b, :c}]}),
       ...>   do: Bag.to_list!(bag)
       [{:a, :b, :c}]
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c}, {:a, :d, :e}, {:f, :g}, {:h}])
+      iex> get_in(bag, [:a])
+      [b: :c, d: :e]
   """
 
   use Ets.Utils
