@@ -38,29 +38,8 @@ defmodule Ets.Set do
   helpful when using things like `first`, `last`, `previous`, `next`, and `to_list`, but comes with the penalty of
   log(n) insert time vs consistent insert time of an unordered set.
 
-  Sets implement [`Access`] _behaviour_.
-
-  ## Examples
-
-      iex> set = Set.new!(keypos: 2)
-      iex> Set.put!(set, [{:a, :b, :c}, {:d, :e, :f}])
-      iex> get_in(set, [:b])
-      {:a, :b, :c}
-      iex> get_in(set, [:z])
-      nil
-      iex> with {{:a, :b, :c}, set} <-
-      ...>   pop_in(set, [:b]), do: Set.to_list!(set)
-      [{:d, :e, :f}]
-      iex> with {nil, set} <- pop_in(set, [:z]), do: Set.to_list!(set)
-      [{:d, :e, :f}]
-      iex> with {{:d, :e, :f}, set} <-
-      ...>     get_and_update_in(set, [:e], &{&1, {:a, :b, :c}}),
-      ...>   do: Set.to_list!(set)
-      [{:a, :b, :c}]
   """
-
   use Ets.Utils
-  use Ets.Access, find: :get, delete: :delete!, add: :put!
 
   alias Ets.{
     Base,
