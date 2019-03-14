@@ -33,6 +33,10 @@ defmodule Ets.Set.KeyValueSet do
       ...>     get_and_update_in(set, [:k1], &{&1, :v42}),
       ...>   do: KeyValueSet.to_list!(set)
       [k3: :v3, k1: :v42]
+      iex> with {:v42, set} <-
+      ...>     get_and_update_in(set, [:k1], fn _ -> :pop end),
+      ...>   do: KeyValueSet.to_list!(set)
+      [k3: :v3]
 
   """
   use Ets.Utils
@@ -298,7 +302,7 @@ defmodule Ets.Set.KeyValueSet do
       end
 
     case function.(value) do
-      :pop -> pop(set, key)
+      :pop -> {value, delete!(set, key)}
       {^value, updated} -> {value, put!(set, key, updated)}
     end
   end
