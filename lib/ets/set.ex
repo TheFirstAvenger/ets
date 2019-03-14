@@ -45,23 +45,18 @@ defmodule Ets.Set do
       iex> set = Set.new!(keypos: 2)
       iex> Set.put!(set, [{:a, :b, :c}, {:d, :e, :f}])
       iex> get_in(set, [:b])
-      {:a, :c}
+      {:a, :b, :c}
       iex> get_in(set, [:z])
       nil
-      iex> with {{:a, :c}, set} <-
+      iex> with {{:a, :b, :c}, set} <-
       ...>   pop_in(set, [:b]), do: Set.to_list!(set)
       [{:d, :e, :f}]
       iex> with {nil, set} <- pop_in(set, [:z]), do: Set.to_list!(set)
       [{:d, :e, :f}]
-      iex> with {{:d, :f}, set} <-
+      iex> with {{:d, :e, :f}, set} <-
       ...>     get_and_update_in(set, [:e], &{&1, {:a, :b, :c}}),
       ...>   do: Set.to_list!(set)
       [{:a, :b, :c}]
-
-      iex> set = Set.new!()
-      iex> Set.put!(set, [{:a, %{:b => :c}}])
-      iex> get_in(set, [:a, :b])
-      :c
   """
 
   use Ets.Utils
