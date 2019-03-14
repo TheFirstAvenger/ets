@@ -46,14 +46,16 @@ See module documentation for more examples and documentation, including a guide 
 
 #### Create Examples
 
-    iex> {:ok, set} = Set.new(ordered: true, keypos: 3, read_concurrency: true, compressed: false)
-    iex> Set.info!(set)[:read_concurrency]
-    true
+```elixir
+iex> {:ok, set} = Set.new(ordered: true, keypos: 3, read_concurrency: true, compressed: false)
+iex> Set.info!(set)[:read_concurrency]
+true
 
-    # Named :ets tables via the name keyword
-    iex> {:ok, set} = Set.new(name: :my_ets_table)
-    iex> Set.info!(set)[:name]
-    :my_ets_table
+# Named :ets tables via the name keyword
+iex> {:ok, set} = Set.new(name: :my_ets_table)
+iex> Set.info!(set)[:name]
+:my_ets_table
+```
 
 ### Adding/Updating/Retrieving records in Sets
 
@@ -64,45 +66,49 @@ isolated manner, but with `put_new` no records are inserted if at least one exis
 
 #### Set Examples
 
-    iex> set = Set.new!(ordered: true)
-    iex> |> Set.put!({:a, :b})
-    iex> |> Set.put!({:a, :c}) # Overwrites entry from previous line
-    iex> |> Set.put!({:c, :d})
-    iex> Set.get(:a)
-    {:ok, {:a, :c}}
-    iex> Set.to_list()
-    {:ok, [{:a, :c}, {:c, :d}]}
+```elixir
+iex> set = Set.new!(ordered: true)
+iex> |> Set.put!({:a, :b})
+iex> |> Set.put!({:a, :c}) # Overwrites entry from previous line
+iex> |> Set.put!({:c, :d})
+iex> Set.get(:a)
+{:ok, {:a, :c}}
+iex> Set.to_list()
+{:ok, [{:a, :c}, {:c, :d}]}
 
-    iex> Set.new!(ordered: true)
-    iex> |> Set.put!({:a, :b})
-    iex> |> Set.put_new!({:a, :c}) # Doesn't insert due to key :a already existing
-    iex> |> Set.to_list!()
-    [{:a, :b}]
+iex> Set.new!(ordered: true)
+iex> |> Set.put!({:a, :b})
+iex> |> Set.put_new!({:a, :c}) # Doesn't insert due to key :a already existing
+iex> |> Set.to_list!()
+[{:a, :b}]
+```
 
 #### Bag Examples
 
-    iex> bag = Bag.new!()
-    iex> |> Bag.add!({:a, :b})
-    iex> |> Bag.add!({:a, :c})
-    iex> |> Bag.add!({:a, :c}) # Adds dude to duplicate: true
-    iex> |> Bag.add!({:c, :d})
-    iex> Bag.lookup(:a)
-    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}]}
-    iex> Bag.to_list(bag)
-    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
-    iex> Bag.add_new!(bag, {:a, :z}) # Doesn't add due to key :a already existing
-    iex> Bag.to_list(bag)
-    {:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
+```elixir
+iex> bag = Bag.new!()
+iex> |> Bag.add!({:a, :b})
+iex> |> Bag.add!({:a, :c})
+iex> |> Bag.add!({:a, :c}) # Adds dude to duplicate: true
+iex> |> Bag.add!({:c, :d})
+iex> Bag.lookup(:a)
+{:ok, [{:a, :b}, {:a, :c}, {:a, :c}]}
+iex> Bag.to_list(bag)
+{:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
+iex> Bag.add_new!(bag, {:a, :z}) # Doesn't add due to key :a already existing
+iex> Bag.to_list(bag)
+{:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
 
-    iex> bag = Bag.new!(duplicate: false)
-    iex> |> Bag.add!({:a, :b})
-    iex> |> Bag.add!({:a, :c})
-    iex> |> Bag.add!({:a, :c}) # Doesn't add dude to duplicate: false
-    iex> |> Bag.add!({:c, :d})
-    iex> Bag.lookup(:a)
-    {:ok, [{:a, :b}, {:a, :c}]}
-    iex> Bag.to_list()
-    {:ok, [{:a, :b}, {:a, :c}, {:c, :d}]}
+iex> bag = Bag.new!(duplicate: false)
+iex> |> Bag.add!({:a, :b})
+iex> |> Bag.add!({:a, :c})
+iex> |> Bag.add!({:a, :c}) # Doesn't add dude to duplicate: false
+iex> |> Bag.add!({:c, :d})
+iex> Bag.lookup(:a)
+{:ok, [{:a, :b}, {:a, :c}]}
+iex> Bag.to_list()
+{:ok, [{:a, :b}, {:a, :c}, {:c, :d}]}
+```
 
 ## Current Progress
 
