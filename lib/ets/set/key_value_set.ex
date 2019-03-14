@@ -11,9 +11,38 @@ defmodule Ets.Set.KeyValueSet do
       iex> KeyValueSet.get(kvset, :my_key)
       {:ok, :my_val}
 
+  `KeyValueSet` implements [`Access`] _behaviour_.
+
+  ## Examples
+
+      iex> set =
+      ...>   KeyValueSet.new!()
+      ...>   |> KeyValueSet.put!(:k1, :v1)
+      ...>   |> KeyValueSet.put!(:k2, :v2)
+      ...>   |> KeyValueSet.put!(:k3, :v3)
+      iex> get_in(set, [:k1])
+      :v1
+      iex> get_in(set, [:z])
+      nil
+      iex> with {:v2, set} <-
+      ...>   pop_in(set, [:k2]), do: KeyValueSet.to_list!(set)
+      [k3: :v3, k1: :v1]
+      iex> with {nil, set} <- pop_in(set, [:z]), do: KeyValueSet.to_list!(set)
+      [k3: :v3, k1: :v1]
+      iex> with {:v1, set} <-
+      ...>     get_and_update_in(set, [:k1], &{&1, :v42}),
+      ...>   do: KeyValueSet.to_list!(set)
+      [k3: :v3, k1: :v42]
+      iex> with {:v42, set} <-
+      ...>     get_and_update_in(set, [:k1], fn _ -> :pop end),
+      ...>   do: KeyValueSet.to_list!(set)
+      [k3: :v3]
+
   """
   use Ets.Utils
   use Ets.Set.KeyValueSet.Macros
+
+  @behaviour Access
 
   alias Ets
   alias Ets.Set
@@ -176,6 +205,61 @@ defmodule Ets.Set.KeyValueSet do
   def get!(%KeyValueSet{} = key_value_set, key, default \\ nil),
     do: unwrap_or_raise(get(key_value_set, key, default))
 
+  @doc """
+  Deletes record with specified key in specified Set.
+
+  ## Examples
+
+      iex> set = KeyValueSet.new!()
+      iex> KeyValueSet.put(set, :a, :b)
+      iex> KeyValueSet.delete(set, :a)
+      iex> KeyValueSet.get!(set, :a)
+      nil
+
+  """
+  @spec delete(KeyValueSet.t(), any()) :: {:ok, KeyValueSet.t()} | {:error, any()}
+  def delete(%KeyValueSet{set: set}, key) do
+    with {:ok, %Set{table: table}} <- Set.delete(set, key),
+         do: KeyValueSet.wrap_existing(table)
+  end
+
+  @doc """
+  Same as `delete/2` but unwraps or raises on error.
+  """
+  @spec delete!(KeyValueSet.t(), any()) :: KeyValueSet.t()
+  def delete!(%KeyValueSet{} = set, key),
+    do: unwrap_or_raise(delete(set, key))
+
+  @doc """
+  Deletes all records in specified Set.
+
+  ## Examples
+
+      iex> set = KeyValueSet.new!()
+      iex> set
+      iex> |> KeyValueSet.put!(:a, :d)
+      iex> |> KeyValueSet.put!(:b, :d)
+      iex> |> KeyValueSet.put!(:c, :d)
+      iex> |> KeyValueSet.to_list!()
+      [c: :d, b: :d, a: :d]
+      iex> KeyValueSet.delete_all(set)
+      iex> KeyValueSet.to_list!(set)
+      []
+
+  """
+  @spec delete_all(KeyValueSet.t()) :: {:ok, KeyValueSet.t()} | {:error, any()}
+  def delete_all(%KeyValueSet{set: set}) do
+    with {:ok, %Set{table: table}} <- Set.delete_all(set),
+         do: KeyValueSet.wrap_existing(table)
+  end
+
+  @doc """
+  Same as `delete_all/1` but unwraps or raises on error.
+  """
+  @spec delete_all!(KeyValueSet.t()) :: KeyValueSet.t()
+  def delete_all!(%KeyValueSet{} = set),
+    do: unwrap_or_raise(delete_all(set))
+
   def info(key_value_set, force_update \\ false)
   def info!(key_value_set, force_update \\ false)
 
@@ -193,7 +277,43 @@ defmodule Ets.Set.KeyValueSet do
   delegate_to_set(:previous, 2, do: "Returns previous key in KeyValueSet")
   delegate_to_set(:has_key, 2, do: "Determines if specified key exists in KeyValueSet")
   delegate_to_set(:delete, 1, do: "Deletes KeyValueSet")
-  delegate_to_set(:delete, 2, do: "Deletes record with key in KeyValueSet")
-  delegate_to_set(:delete_all, 1, do: "Deletes all records in KeyValueSet")
   delegate_to_set(:to_list, 1, do: "Returns contents of table as a list")
+
+  ### Access behaviour implementation
+
+  @doc false
+  @doc since: "0.7.0"
+  @impl true
+  def fetch(set, key) do
+    case get(set, key) do
+      {:ok, result} -> {:ok, result}
+      _ -> :error
+    end
+  end
+
+  @doc false
+  @doc since: "0.7.0"
+  @impl true
+  def get_and_update(set, key, function) do
+    value =
+      case fetch(set, key) do
+        {:ok, value} -> value
+        _ -> nil
+      end
+
+    case function.(value) do
+      :pop -> {value, delete!(set, key)}
+      {^value, updated} -> {value, put!(set, key, updated)}
+    end
+  end
+
+  @doc false
+  @doc since: "0.7.0"
+  @impl true
+  def pop(set, key) do
+    case get(set, key) do
+      {:ok, value} -> {value, delete!(set, key)}
+      _ -> {nil, set}
+    end
+  end
 end
