@@ -1,7 +1,9 @@
 # Changelog
 
-## Next
+## 0.7.0
 
+* Add `Access` protocol for `KeyValueSet` - Thanks @am-kantox
+* Fix return issue in `KeyValueSet` delete/delete_all - Thanks @am-kantox
 * Add documentation for choosing which table to use
 
 ## 0.6.0
