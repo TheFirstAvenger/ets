@@ -55,6 +55,8 @@ true
 iex> {:ok, set} = Set.new(name: :my_ets_table)
 iex> Set.info!(set)[:name]
 :my_ets_table
+iex> {:ok, set} = Set.wrap_existing(:my_ets_table)
+iex> set = Set.wrap_existing!(:my_ets_table)
 ```
 
 ### Adding/Updating/Retrieving records in Sets
