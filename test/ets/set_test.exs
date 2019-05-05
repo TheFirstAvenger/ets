@@ -346,6 +346,23 @@ defmodule SetTest do
       assert_raise RuntimeError, "Ets.Set.get!/3 returned {:error, :table_not_found}", fn ->
         Set.get!(set, :a)
       end
+
+      slf = self()
+
+      spawn_link(fn ->
+        set = Set.new!(protection: :private)
+        send(slf, {:table, set})
+        :timer.sleep(:infinity)
+      end)
+
+      set =
+        receive do
+          {:table, set} -> set
+        end
+
+      assert_raise RuntimeError, "Ets.Set.get!/3 returned {:error, :read_protected}", fn ->
+        Set.get!(set, :a)
+      end
     end
   end
 

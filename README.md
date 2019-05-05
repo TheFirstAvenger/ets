@@ -178,7 +178,7 @@ iex> Bag.to_list()
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.7.0"}
+    {:ets, "~> 0.7.3"}
   ]
 end
 ```
