@@ -169,9 +169,11 @@ defmodule Ets.Base do
   @spec lookup(Ets.table_identifier(), any()) :: {:ok, [tuple()]} | {:error, any()}
   def lookup(table, key) do
     catch_error do
-      catch_table_not_found table do
-        vals = :ets.lookup(table, key)
-        {:ok, vals}
+      catch_read_protected table do
+        catch_table_not_found table do
+          vals = :ets.lookup(table, key)
+          {:ok, vals}
+        end
       end
     end
   end
@@ -181,10 +183,12 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def lookup_element(table, key, pos) do
     catch_error do
-      catch_key_not_found table, key do
-        catch_table_not_found table do
-          vals = :ets.lookup_element(table, key, pos)
-          {:ok, vals}
+      catch_read_protected table do
+        catch_key_not_found table, key do
+          catch_table_not_found table do
+            vals = :ets.lookup_element(table, key, pos)
+            {:ok, vals}
+          end
         end
       end
     end
@@ -194,9 +198,11 @@ defmodule Ets.Base do
   @spec match(Ets.table_identifier(), Ets.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
   def match(table, pattern) do
     catch_error do
-      catch_table_not_found table do
-        matches = :ets.match(table, pattern)
-        {:ok, matches}
+      catch_read_protected table do
+        catch_table_not_found table do
+          matches = :ets.match(table, pattern)
+          {:ok, matches}
+        end
       end
     end
   end
@@ -206,11 +212,13 @@ defmodule Ets.Base do
           {:ok, {[tuple()], any()}} | {:error, any()}
   def match(table, pattern, limit) do
     catch_error do
-      catch_table_not_found table do
-        case :ets.match(table, pattern, limit) do
-          {x, :"$end_of_table"} -> {:ok, {x, :end_of_table}}
-          {records, continuation} -> {:ok, {records, continuation}}
-          :"$end_of_table" -> {:ok, {[], :end_of_table}}
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.match(table, pattern, limit) do
+            {x, :"$end_of_table"} -> {:ok, {x, :end_of_table}}
+            {records, continuation} -> {:ok, {records, continuation}}
+            :"$end_of_table" -> {:ok, {[], :end_of_table}}
+          end
         end
       end
     end
@@ -237,10 +245,12 @@ defmodule Ets.Base do
   @spec select(Ets.table_identifier(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(table, spec) when is_list(spec) do
     catch_error do
-      catch_invalid_select_spec spec do
-        catch_table_not_found table do
-          matches = :ets.select(table, spec)
-          {:ok, matches}
+      catch_read_protected table do
+        catch_invalid_select_spec spec do
+          catch_table_not_found table do
+            matches = :ets.select(table, spec)
+            {:ok, matches}
+          end
         end
       end
     end
@@ -251,10 +261,12 @@ defmodule Ets.Base do
           {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(table, spec) when is_list(spec) do
     catch_error do
-      catch_invalid_select_spec spec do
-        catch_table_not_found table do
-          count = :ets.select_delete(table, spec)
-          {:ok, count}
+      catch_read_protected table do
+        catch_invalid_select_spec spec do
+          catch_table_not_found table do
+            count = :ets.select_delete(table, spec)
+            {:ok, count}
+          end
         end
       end
     end
@@ -264,8 +276,10 @@ defmodule Ets.Base do
   @spec has_key(Ets.table_identifier(), any()) :: {:ok, boolean()} | {:error, any()}
   def has_key(table, key) do
     catch_error do
-      catch_table_not_found table do
-        {:ok, :ets.member(table, key)}
+      catch_read_protected table do
+        catch_table_not_found table do
+          {:ok, :ets.member(table, key)}
+        end
       end
     end
   end
@@ -274,10 +288,12 @@ defmodule Ets.Base do
   @spec first(Ets.table_identifier()) :: {:ok, any()} | {:error, any()}
   def first(table) do
     catch_error do
-      catch_table_not_found table do
-        case :ets.first(table) do
-          :"$end_of_table" -> {:error, :empty_table}
-          x -> {:ok, x}
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.first(table) do
+            :"$end_of_table" -> {:error, :empty_table}
+            x -> {:ok, x}
+          end
         end
       end
     end
@@ -287,10 +303,12 @@ defmodule Ets.Base do
   @spec last(Ets.table_identifier()) :: {:ok, any()} | {:error, any()}
   def last(table) do
     catch_error do
-      catch_table_not_found table do
-        case :ets.last(table) do
-          :"$end_of_table" -> {:error, :empty_table}
-          x -> {:ok, x}
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.last(table) do
+            :"$end_of_table" -> {:error, :empty_table}
+            x -> {:ok, x}
+          end
         end
       end
     end
@@ -300,10 +318,12 @@ defmodule Ets.Base do
   @spec next(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def next(table, key) do
     catch_error do
-      catch_table_not_found table do
-        case :ets.next(table, key) do
-          :"$end_of_table" -> {:error, :end_of_table}
-          x -> {:ok, x}
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.next(table, key) do
+            :"$end_of_table" -> {:error, :end_of_table}
+            x -> {:ok, x}
+          end
         end
       end
     end
@@ -313,10 +333,12 @@ defmodule Ets.Base do
   @spec previous(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def previous(table, key) do
     catch_error do
-      catch_table_not_found table do
-        case :ets.prev(table, key) do
-          :"$end_of_table" -> {:error, :start_of_table}
-          x -> {:ok, x}
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.prev(table, key) do
+            :"$end_of_table" -> {:error, :start_of_table}
+            x -> {:ok, x}
+          end
         end
       end
     end
@@ -326,9 +348,11 @@ defmodule Ets.Base do
   @spec delete(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def delete(table, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.delete(table)
-        {:ok, return}
+      catch_write_protected table do
+        catch_table_not_found table do
+          :ets.delete(table)
+          {:ok, return}
+        end
       end
     end
   end
@@ -337,9 +361,11 @@ defmodule Ets.Base do
   @spec delete_records(Ets.table_identifier(), any(), any()) :: {:ok, any()} | {:error, any()}
   def delete_records(table, key, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.delete(table, key)
-        {:ok, return}
+      catch_write_protected table do
+        catch_table_not_found table do
+          :ets.delete(table, key)
+          {:ok, return}
+        end
       end
     end
   end
@@ -348,9 +374,11 @@ defmodule Ets.Base do
   @spec delete_all_records(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def delete_all_records(table, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.delete_all_objects(table)
-        {:ok, return}
+      catch_write_protected table do
+        catch_table_not_found table do
+          :ets.delete_all_objects(table)
+          {:ok, return}
+        end
       end
     end
   end

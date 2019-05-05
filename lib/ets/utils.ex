@@ -170,6 +170,23 @@ defmodule Ets.Utils do
     end
   end
 
+  defmacro catch_read_protected(table, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          info = :ets.info(unquote(table))
+
+          if info[:protection] in [:public, :protected] or info[:owner] == self() do
+            reraise(e, __STACKTRACE__)
+          else
+            {:error, :read_protected}
+          end
+      end
+    end
+  end
+
   defmacro unwrap_or_raise(expr) do
     {func, arity} = __CALLER__.function
     mod = __CALLER__.module
