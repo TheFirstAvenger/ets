@@ -208,6 +208,16 @@ defmodule SetTest do
       assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :table_not_found}", fn ->
         Set.put!(set, {:a})
       end
+
+      set2 = Set.new!(keypos: 3)
+
+      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :record_too_small}", fn ->
+        Set.put!(set2, {:a, :b})
+      end
+
+      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :record_too_small}", fn ->
+        Set.put!(set2, [{:a, :b}, {:c}])
+      end
     end
   end
 
@@ -249,6 +259,16 @@ defmodule SetTest do
                    fn ->
                      Set.put_new!(set, {:a})
                    end
+
+      set2 = Set.new!(keypos: 3)
+
+      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
+        Set.put_new!(set2, {:a, :b})
+      end
+
+      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
+        Set.put_new!(set2, [{:a, :b}, {:c}])
+      end
     end
   end
 
