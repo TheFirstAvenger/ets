@@ -218,6 +218,28 @@ defmodule SetTest do
       assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :record_too_small}", fn ->
         Set.put!(set2, [{:a, :b}, {:c}])
       end
+
+      slf = self()
+
+      spawn_link(fn ->
+        set1 = Set.new!(protection: :protected)
+        set2 = Set.new!(protection: :private)
+        send(slf, {:table, set1, set2})
+        :timer.sleep(:infinity)
+      end)
+
+      {set1, set2} =
+        receive do
+          {:table, set1, set2} -> {set1, set2}
+        end
+
+      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :write_protected}", fn ->
+        Set.put!(set1, {:a, :b, :c})
+      end
+
+      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :write_protected}", fn ->
+        Set.put!(set2, {:a, :b, :c})
+      end
     end
   end
 
@@ -268,6 +290,28 @@ defmodule SetTest do
 
       assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
         Set.put_new!(set2, [{:a, :b}, {:c}])
+      end
+
+      slf = self()
+
+      spawn_link(fn ->
+        set1 = Set.new!(protection: :protected)
+        set2 = Set.new!(protection: :private)
+        send(slf, {:table, set1, set2})
+        :timer.sleep(:infinity)
+      end)
+
+      {set1, set2} =
+        receive do
+          {:table, set1, set2} -> {set1, set2}
+        end
+
+      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :write_protected}", fn ->
+        Set.put_new!(set1, {:a, :b, :c})
+      end
+
+      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :write_protected}", fn ->
+        Set.put_new!(set2, {:a, :b, :c})
       end
     end
   end

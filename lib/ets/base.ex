@@ -93,10 +93,12 @@ defmodule Ets.Base do
   @spec insert(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert(table, record, return) do
     catch_error do
-      catch_record_too_small table, record do
-        catch_table_not_found table do
-          :ets.insert(table, record)
-          {:ok, return}
+      catch_write_protected table do
+        catch_record_too_small table, record do
+          catch_table_not_found table do
+            :ets.insert(table, record)
+            {:ok, return}
+          end
         end
       end
     end
@@ -106,10 +108,12 @@ defmodule Ets.Base do
   @spec insert_new(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert_new(table, record, return) do
     catch_error do
-      catch_record_too_small table, record do
-        catch_table_not_found table do
-          :ets.insert_new(table, record)
-          {:ok, return}
+      catch_write_protected table do
+        catch_record_too_small table, record do
+          catch_table_not_found table do
+            :ets.insert_new(table, record)
+            {:ok, return}
+          end
         end
       end
     end
@@ -120,11 +124,13 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi(table, records, return) do
     catch_error do
-      catch_records_too_small table, records do
-        catch_bad_records records do
-          catch_table_not_found table do
-            :ets.insert(table, records)
-            {:ok, return}
+      catch_write_protected table do
+        catch_records_too_small table, records do
+          catch_bad_records records do
+            catch_table_not_found table do
+              :ets.insert(table, records)
+              {:ok, return}
+            end
           end
         end
       end
@@ -136,11 +142,13 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi_new(table, records, return) do
     catch_error do
-      catch_records_too_small table, records do
-        catch_bad_records records do
-          catch_table_not_found table do
-            :ets.insert_new(table, records)
-            {:ok, return}
+      catch_write_protected table do
+        catch_records_too_small table, records do
+          catch_bad_records records do
+            catch_table_not_found table do
+              :ets.insert_new(table, records)
+              {:ok, return}
+            end
           end
         end
       end
@@ -229,9 +237,11 @@ defmodule Ets.Base do
   @spec select(Ets.table_identifier(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(table, spec) when is_list(spec) do
     catch_error do
-      catch_table_not_found table do
-        matches = :ets.select(table, spec)
-        {:ok, matches}
+      catch_invalid_select_spec spec do
+        catch_table_not_found table do
+          matches = :ets.select(table, spec)
+          {:ok, matches}
+        end
       end
     end
   end
@@ -241,9 +251,11 @@ defmodule Ets.Base do
           {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(table, spec) when is_list(spec) do
     catch_error do
-      catch_table_not_found table do
-        count = :ets.select_delete(table, spec)
-        {:ok, count}
+      catch_invalid_select_spec spec do
+        catch_table_not_found table do
+          count = :ets.select_delete(table, spec)
+          {:ok, count}
+        end
       end
     end
   end

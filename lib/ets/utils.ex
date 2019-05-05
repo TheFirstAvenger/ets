@@ -125,6 +125,51 @@ defmodule Ets.Utils do
     end
   end
 
+  defmacro catch_invalid_select_spec(spec, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          if Ets.Utils.valid_select_spec?(unquote(spec)) do
+            reraise(e, __STACKTRACE__)
+          else
+            {:error, :invalid_select_spec}
+          end
+      end
+    end
+  end
+
+  def valid_select_spec?(spec) when is_list(spec) do
+    spec
+    |> Enum.all?(fn s ->
+      s |> is_tuple() and
+        s |> tuple_size() == 3 and
+        s |> elem(0) |> is_tuple() and
+        s |> elem(1) |> is_list() and
+        s |> elem(2) |> is_list()
+    end)
+  end
+
+  def valid_select_spec?(_not_a_list), do: false
+
+  defmacro catch_write_protected(table, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          info = :ets.info(unquote(table))
+
+          if info[:protection] == :public or info[:owner] == self() do
+            reraise(e, __STACKTRACE__)
+          else
+            {:error, :write_protected}
+          end
+      end
+    end
+  end
+
   defmacro unwrap_or_raise(expr) do
     {func, arity} = __CALLER__.function
     mod = __CALLER__.module
