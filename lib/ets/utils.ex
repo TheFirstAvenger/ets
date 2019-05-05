@@ -92,6 +92,39 @@ defmodule Ets.Utils do
     end
   end
 
+  defmacro catch_record_too_small(table, record, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          if :ets.info(unquote(table))[:keypos] > tuple_size(unquote(record)) do
+            {:error, :record_too_small}
+          else
+            reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
+  defmacro catch_records_too_small(table, records, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          keypos = :ets.info(unquote(table))[:keypos]
+
+          unquote(records)
+          |> Enum.filter(&(keypos > tuple_size(&1)))
+          |> case do
+            [] -> reraise(e, __STACKTRACE__)
+            _ -> {:error, :record_too_small}
+          end
+      end
+    end
+  end
+
   defmacro unwrap_or_raise(expr) do
     {func, arity} = __CALLER__.function
     mod = __CALLER__.module

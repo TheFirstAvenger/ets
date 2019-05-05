@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.7.1
+
+* Handle and return :record_too_small when size of inserted record is smaller than keypos
+
 ## 0.7.0
 
 * Add `Access` protocol for `KeyValueSet` - Thanks @am-kantox

@@ -140,6 +140,16 @@ defmodule BagTest do
       assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :table_not_found}", fn ->
         Bag.add!(bag, {:a})
       end
+
+      bag2 = Bag.new!(keypos: 3)
+
+      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :record_too_small}", fn ->
+        Bag.add!(bag2, {:a, :b})
+      end
+
+      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :record_too_small}", fn ->
+        Bag.add!(bag2, [{:a, :b}, {:c}])
+      end
     end
 
     test "add_new!/2 raises on error" do
@@ -156,6 +166,16 @@ defmodule BagTest do
                    fn ->
                      Bag.add_new!(bag, {:a})
                    end
+
+      bag2 = Bag.new!(keypos: 3)
+
+      assert_raise RuntimeError, "Ets.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
+        Bag.add_new!(bag2, {:a, :b})
+      end
+
+      assert_raise RuntimeError, "Ets.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
+        Bag.add_new!(bag2, [{:a, :b}, {:c}])
+      end
     end
   end
 

@@ -93,9 +93,11 @@ defmodule Ets.Base do
   @spec insert(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert(table, record, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.insert(table, record)
-        {:ok, return}
+      catch_record_too_small table, record do
+        catch_table_not_found table do
+          :ets.insert(table, record)
+          {:ok, return}
+        end
       end
     end
   end
@@ -104,9 +106,11 @@ defmodule Ets.Base do
   @spec insert_new(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert_new(table, record, return) do
     catch_error do
-      catch_table_not_found table do
-        :ets.insert_new(table, record)
-        {:ok, return}
+      catch_record_too_small table, record do
+        catch_table_not_found table do
+          :ets.insert_new(table, record)
+          {:ok, return}
+        end
       end
     end
   end
@@ -116,10 +120,12 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi(table, records, return) do
     catch_error do
-      catch_bad_records records do
-        catch_table_not_found table do
-          :ets.insert(table, records)
-          {:ok, return}
+      catch_records_too_small table, records do
+        catch_bad_records records do
+          catch_table_not_found table do
+            :ets.insert(table, records)
+            {:ok, return}
+          end
         end
       end
     end
@@ -130,10 +136,12 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def insert_multi_new(table, records, return) do
     catch_error do
-      catch_bad_records records do
-        catch_table_not_found table do
-          :ets.insert_new(table, records)
-          {:ok, return}
+      catch_records_too_small table, records do
+        catch_bad_records records do
+          catch_table_not_found table do
+            :ets.insert_new(table, records)
+            {:ok, return}
+          end
         end
       end
     end
