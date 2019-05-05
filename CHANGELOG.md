@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.2
+
+* Handle and return :write_protected error when inserting into a non-public set from a different process
+* Handle and return :invalid_select_spec error
 
 ## 0.7.1
 
