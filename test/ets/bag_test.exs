@@ -189,6 +189,17 @@ defmodule BagTest do
                      Bag.lookup_element!(bag, :not_a_key, 2)
                    end
 
+      Bag.add!(bag, {:a, :b, :c, :d, :e})
+      Bag.add!(bag, {:a, :e, :f, :g})
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
+                   fn -> Bag.lookup_element!(bag, :a, 5) end
+
+      assert_raise RuntimeError,
+                   "Ets.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
+                   fn -> Bag.lookup_element!(bag, :a, 6) end
+
       Bag.delete!(bag)
 
       assert_raise RuntimeError,

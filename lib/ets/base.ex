@@ -183,11 +183,13 @@ defmodule Ets.Base do
           {:ok, any()} | {:error, any()}
   def lookup_element(table, key, pos) do
     catch_error do
-      catch_read_protected table do
+      catch_position_out_of_bounds table, key, pos do
         catch_key_not_found table, key do
-          catch_table_not_found table do
-            vals = :ets.lookup_element(table, key, pos)
-            {:ok, vals}
+          catch_read_protected table do
+            catch_table_not_found table do
+              vals = :ets.lookup_element(table, key, pos)
+              {:ok, vals}
+            end
           end
         end
       end

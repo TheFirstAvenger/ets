@@ -125,6 +125,24 @@ defmodule Ets.Utils do
     end
   end
 
+  defmacro catch_position_out_of_bounds(table, key, pos, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          unquote(table)
+          |> :ets.lookup(unquote(key))
+          |> Enum.any?(&(tuple_size(&1) < unquote(pos)))
+          |> if do
+            {:error, :position_out_of_bounds}
+          else
+            reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
   defmacro catch_invalid_select_spec(spec, do: do_block) do
     quote do
       try do
