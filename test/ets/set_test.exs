@@ -388,6 +388,12 @@ defmodule SetTest do
         Set.get_element!(set, :not_a_key, 2)
       end
 
+      Set.put!(set, {:a, :b, :c, :d})
+
+      assert_raise RuntimeError,
+                   "Ets.Set.get_element!/3 returned {:error, :position_out_of_bounds}",
+                   fn -> Set.get_element!(set, :a, 5) end
+
       Set.delete!(set)
 
       assert_raise RuntimeError,

@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+* Handle and return :position_out_of_bounds when calling `get_element`/`lookup_element` with a position greater than the size of one of the returned tuples
+
 ## 0.7.3
 
 * Handle and return :read_protected error when reading from a private table from a different process
