@@ -38,6 +38,43 @@ defmodule Ets.Set do
   helpful when using things like `first`, `last`, `previous`, `next`, and `to_list`, but comes with the penalty of
   log(n) insert time vs consistent insert time of an unordered set.
 
+  ## Working with named tables
+
+  The functions on `Ets.Set` require that you pass in an `Ets.Set` as the first argument. In some design patterns,
+  you may have the table name but an instance of an `Ets.Set` may not be available to you. If this is the case,
+  you should use `wrap_existing/1` to turn your table name atom into an `Ets.Set`. For example, a `GenServer` that
+  handles writes within the server, but reads in the client process would be implemented like this:
+
+  ```
+  defmodule MyExampleGenServer do
+    use GenServer
+
+    # Client Functions
+
+    def get_token_for_user(user_id) do
+      :my_token_table
+      |> Ets.Set.wrap_existing!()
+      |> Ets.Set.get!(user_id)
+      |> elem(1)
+    end
+
+    def set_token_for_user(user_id, token) do
+      GenServer.call(__MODULE__, {:set_token_for_user, user_id, token})
+    end
+
+    # Server Functions
+
+    def init(_) do
+      {:ok, %{set: Ets.Set.new!(name: :my_token_table)}}
+    end
+
+    def handle_call({:set_token_for_user, user_id, token}, _from, %{set: set}) do
+      Ets.Set.put(set, user_id, token)
+    end
+  end
+
+  ```
+
   """
   use Ets.Utils
 
