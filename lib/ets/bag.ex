@@ -37,6 +37,44 @@ defmodule Ets.Bag do
   instead). Note that `duplicate: false` will increase the time it takes to add records as the table must be checked for
   duplicates prior to insert. `duplicate: true` maps to the `:ets` table type `:duplicate_bag`, `duplicate: false` maps to `:bag`.
 
+  ## Working with named tables
+
+  The functions on `Ets.Bag` require that you pass in an `Ets.Bag` as the first argument. In some design patterns,
+  you may have the table name but an instance of an `Ets.Bag` may not be available to you. If this is the case,
+  you should use `wrap_existing/1` to turn your table name atom into an `Ets.Bag`. For example, a `GenServer` that
+  handles writes within the server, but reads in the client process would be implemented like this:
+
+  ```
+  defmodule MyExampleGenServer do
+    use GenServer
+    alias Ets.Bag
+
+    # Client Functions
+
+    def get_roles_for_user(user_id) do
+      :my_role_table
+      |> Bag.wrap_existing!()
+      |> Bag.lookup!(user_id)
+      |> Enum.map(&elem(&1, 1))
+    end
+
+    def add_role_for_user(user_id, role) do
+      GenServer.call(__MODULE__, {:add_role_for_user, user_id, role})
+    end
+
+    # Server Functions
+
+    def init(_) do
+      {:ok, %{bag: Bag.new!(name: :my_role_table)}}
+    end
+
+    def handle_call({:add_role_for_user, user_id, role}, _from, %{bag: bag}) do
+      Bag.add(bag, {user_id, role})
+    end
+  end
+
+  ```
+
   """
   use Ets.Utils
 
