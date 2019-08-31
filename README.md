@@ -10,6 +10,23 @@
 
 Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
 
+## Current Features
+
+* `Ets.Set` - wraps `:set` and `:ordered_set`
+* `Ets.Bag` - wraps `:bag` and `:duplicate_bag`
+* `Ets.Set.KeyValueSet` - extension of `Ets.Set` that abstracts away key index and tuple concepts.
+* Most used functions from `:ets` replicated for all wrappers
+* Returns {:error, reason} tuples (or raises in ! versions) for:
+  * `:table_not_found`
+  * `:table_already_exists`
+  * `:key_not_found`
+  * `:invalid_record` (when inserting non-tuples)
+  * `:record_too_small` (tuple smaller than keypos index)
+  * `:position_out_of_bounds` (`lookup` with a pos > length of one of the results)
+  * `:invalid_select_spec`
+  * `:write_protected` - trying to write to a protected or private table from a different process than the owner
+  * `:read_protected` - trying to read from a private table from a different process than the owner
+
 ## Design Goals
 
 The purpose of this package is to improve the developer experience when both learning and interacting with Erlang Term Storage.
