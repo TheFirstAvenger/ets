@@ -75,7 +75,7 @@ iex> |> Set.put!({:a, :c}) # Overwrites entry from previous line
 iex> |> Set.put!({:c, :d})
 iex> Set.get(:a)
 {:ok, {:a, :c}}
-iex> Set.to_list()
+iex> Set.to_list(set)
 {:ok, [{:a, :c}, {:c, :d}]}
 
 iex> Set.new!(ordered: true)
@@ -93,7 +93,7 @@ iex> |> Bag.add!({:a, :b})
 iex> |> Bag.add!({:a, :c})
 iex> |> Bag.add!({:a, :c}) # Adds dude to duplicate: true
 iex> |> Bag.add!({:c, :d})
-iex> Bag.lookup(:a)
+iex> Bag.lookup(set, :a)
 {:ok, [{:a, :b}, {:a, :c}, {:a, :c}]}
 iex> Bag.to_list(bag)
 {:ok, [{:a, :b}, {:a, :c}, {:a, :c}, {:c, :d}]}
@@ -106,9 +106,9 @@ iex> |> Bag.add!({:a, :b})
 iex> |> Bag.add!({:a, :c})
 iex> |> Bag.add!({:a, :c}) # Doesn't add dude to duplicate: false
 iex> |> Bag.add!({:c, :d})
-iex> Bag.lookup(:a)
+iex> Bag.lookup(bag, :a)
 {:ok, [{:a, :b}, {:a, :c}]}
-iex> Bag.to_list()
+iex> Bag.to_list(bag)
 {:ok, [{:a, :b}, {:a, :c}, {:c, :d}]}
 ```
 
