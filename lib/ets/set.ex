@@ -421,7 +421,8 @@ defmodule Ets.Set do
   @doc """
   Same as `select/3` but unwraps or raises on error.
   """
-  @spec select!(Set.t(), Ets.match_spec(), limit :: integer) :: [tuple()]
+  @spec select!(Set.t(), Ets.match_spec(), limit :: integer) ::
+          {[tuple()], Ets.continuation()} | Ets.end_of_table()
   def select!(%Set{} = set, spec, limit) when is_list(spec),
     do: unwrap_or_raise(select(set, spec, limit))
 
