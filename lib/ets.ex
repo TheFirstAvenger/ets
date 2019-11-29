@@ -28,6 +28,8 @@ defmodule Ets do
   @type table_identifier :: table_name | table_reference
   @type match_pattern :: :ets.match_pattern()
   @type match_spec :: :ets.match_spec()
+  @type continuation :: :ets.continuation()
+  @type end_of_table :: :"$end_of_table"
 
   @doc """
   Returns list of current :ets tables, each wrapped as either `Ets.Set` or `Ets.Bag`.

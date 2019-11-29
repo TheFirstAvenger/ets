@@ -171,6 +171,50 @@ defmodule Ets.Utils do
 
   def valid_select_spec?(_not_a_list), do: false
 
+  def continuation_table(:"$end_of_table"), do: {:ok, :"$end_of_table"}
+
+  def continuation_table({table, i1, i2, _match_spec, list, i3})
+      when is_integer(i1) and is_integer(i2) and is_list(list) and is_integer(i3) do
+    {:ok, table}
+  end
+
+  def continuation_table({table, _, _, i1, _match_spec, list, i2, i3})
+      when is_integer(i1) and is_list(list) and is_integer(i2) and is_integer(i3) do
+    {:ok, table}
+  end
+
+  def continuation_table(_), do: {:error, :invalid_continuation}
+
+  def valid_continuation?(continuation), do: match?({:ok, _}, continuation_table(continuation))
+
+  defmacro catch_invalid_continuation(continuation, do: do_block) do
+    quote do
+      try do
+        case Ets.Utils.continuation_table(unquote(continuation)) do
+          {:ok, :"$end_of_table"} ->
+            unquote(do_block)
+
+          {:error, :invalid_continuation} ->
+            {:error, :invalid_continuation}
+
+          {:ok, table} ->
+            catch_read_protected table do
+              catch_table_not_found table do
+                unquote(do_block)
+              end
+            end
+        end
+      rescue
+        e in ArgumentError ->
+          if Ets.Utils.valid_continuation?(unquote(continuation)) do
+            {:error, :invalid_continuation}
+          else
+            reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
   defmacro catch_write_protected(table, do: do_block) do
     quote do
       try do

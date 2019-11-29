@@ -243,6 +243,17 @@ defmodule Ets.Base do
     end
   end
 
+  @spec select(Ets.continuation()) ::
+          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  def select(continuation) do
+    catch_error do
+      catch_invalid_continuation continuation do
+        matches = :ets.select(continuation)
+        {:ok, matches}
+      end
+    end
+  end
+
   @doc false
   @spec select(Ets.table_identifier(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(table, spec) when is_list(spec) do
@@ -251,6 +262,22 @@ defmodule Ets.Base do
         catch_invalid_select_spec spec do
           catch_table_not_found table do
             matches = :ets.select(table, spec)
+            {:ok, matches}
+          end
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec select(Ets.table_identifier(), Ets.match_spec(), limit :: integer) ::
+          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  def select(table, spec, limit) when is_list(spec) do
+    catch_error do
+      catch_read_protected table do
+        catch_invalid_select_spec spec do
+          catch_table_not_found table do
+            matches = :ets.select(table, spec, limit)
             {:ok, matches}
           end
         end
