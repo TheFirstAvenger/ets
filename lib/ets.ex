@@ -28,7 +28,9 @@ defmodule Ets do
   @type table_identifier :: table_name | table_reference
   @type match_pattern :: :ets.match_pattern()
   @type match_spec :: :ets.match_spec()
-  @type continuation :: :ets.continuation()
+  @type continuation :: end_of_table |
+       {:ets.table(), integer(), integer(), :ets.comp_match_spec(), list(), integer()} |
+       {:ets.table, any(), any(), integer(), :ets.comp_match_spec(), list(), integer(),  integer()}
   @type end_of_table :: :"$end_of_table"
 
   @doc """
