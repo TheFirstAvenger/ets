@@ -386,6 +386,11 @@ defmodule Ets.Set do
           {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
   def select(continuation), do: Base.select(continuation)
 
+  @spec select!(Ets.continuation()) :: {[tuple()], Ets.continuation()} | Ets.end_of_table()
+  def select!(continuation) do
+    unwrap_or_raise(select(continuation))
+  end
+
   @doc """
   Returns records in the specified Set that match the specified match specification.
 
@@ -404,19 +409,19 @@ defmodule Ets.Set do
     do: Base.select(table, spec)
 
   @doc """
+  Same as `select/2` but unwraps or raises on error.
+  """
+  @spec select!(Set.t(), Ets.match_spec()) :: [tuple()]
+  def select!(%Set{} = set, spec) when is_list(spec),
+    do: unwrap_or_raise(select(set, spec))
+
+  @doc """
   Same as `select/2` but limits the number of results returned.
   """
   @spec select(Set.t(), Ets.match_spec(), limit :: integer) ::
           {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
   def select(%Set{table: table}, spec, limit) when is_list(spec),
     do: Base.select(table, spec, limit)
-
-  @doc """
-  Same as `select/2` but unwraps or raises on error.
-  """
-  @spec select!(Set.t(), Ets.match_spec()) :: [tuple()]
-  def select!(%Set{} = set, spec) when is_list(spec),
-    do: unwrap_or_raise(select(set, spec))
 
   @doc """
   Same as `select/3` but unwraps or raises on error.
