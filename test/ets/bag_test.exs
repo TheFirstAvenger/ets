@@ -1,7 +1,7 @@
 defmodule BagTest do
   use ExUnit.Case
-  alias Ets.Bag
-  doctest Ets.Bag
+  alias ETS.Bag
+  doctest ETS.Bag
 
   describe "Named Tables Start" do
     test "Duplicate Bag" do
@@ -68,7 +68,7 @@ defmodule BagTest do
   describe "Rejects bad options" do
     test "Duplicate" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:duplicate, :this_isnt_a_boolean}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:duplicate, :this_isnt_a_boolean}}}",
                    fn ->
                      Bag.new!(duplicate: :this_isnt_a_boolean)
                    end
@@ -76,7 +76,7 @@ defmodule BagTest do
 
     test "Access" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
                    fn ->
                      Bag.new!(protection: :nobody)
                    end
@@ -84,25 +84,25 @@ defmodule BagTest do
 
     test "Heir" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
                    fn ->
                      Bag.new!(heir: :nobody)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
                    fn -> Bag.new!(heir: {:not_a_pid, :data}) end
     end
 
     test "Keypos" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
                    fn ->
                      Bag.new!(keypos: -1)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:keypos, :not_a_number}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:keypos, :not_a_number}}}",
                    fn ->
                      Bag.new!(keypos: :not_a_number)
                    end
@@ -110,19 +110,19 @@ defmodule BagTest do
 
     test "Read Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
                    fn -> Bag.new!(read_concurrency: :not_a_boolean) end
     end
 
     test "Write Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
                    fn -> Bag.new!(write_concurrency: :not_a_boolean) end
     end
 
     test "Compressed" do
       assert_raise RuntimeError,
-                   "Ets.Bag.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
+                   "ETS.Bag.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
                    fn -> Bag.new!(compressed: :not_a_boolean) end
     end
   end
@@ -131,23 +131,23 @@ defmodule BagTest do
     test "add!/2 raises on error" do
       bag = Bag.new!()
 
-      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :invalid_record}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add!/2 returned {:error, :invalid_record}", fn ->
         Bag.add!(bag, [:a])
       end
 
       Bag.delete!(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add!/2 returned {:error, :table_not_found}", fn ->
         Bag.add!(bag, {:a})
       end
 
       bag2 = Bag.new!(keypos: 3)
 
-      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add!/2 returned {:error, :record_too_small}", fn ->
         Bag.add!(bag2, {:a, :b})
       end
 
-      assert_raise RuntimeError, "Ets.Bag.add!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add!/2 returned {:error, :record_too_small}", fn ->
         Bag.add!(bag2, [{:a, :b}, {:c}])
       end
     end
@@ -155,25 +155,25 @@ defmodule BagTest do
     test "add_new!/2 raises on error" do
       bag = Bag.new!()
 
-      assert_raise RuntimeError, "Ets.Bag.add_new!/2 returned {:error, :invalid_record}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add_new!/2 returned {:error, :invalid_record}", fn ->
         Bag.add_new!(bag, [:a])
       end
 
       Bag.delete!(bag)
 
       assert_raise RuntimeError,
-                   "Ets.Bag.add_new!/2 returned {:error, :table_not_found}",
+                   "ETS.Bag.add_new!/2 returned {:error, :table_not_found}",
                    fn ->
                      Bag.add_new!(bag, {:a})
                    end
 
       bag2 = Bag.new!(keypos: 3)
 
-      assert_raise RuntimeError, "Ets.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
         Bag.add_new!(bag2, {:a, :b})
       end
 
-      assert_raise RuntimeError, "Ets.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.add_new!/2 returned {:error, :record_too_small}", fn ->
         Bag.add_new!(bag2, [{:a, :b}, {:c}])
       end
     end
@@ -184,7 +184,7 @@ defmodule BagTest do
       bag = Bag.new!()
 
       assert_raise RuntimeError,
-                   "Ets.Bag.lookup_element!/3 returned {:error, :key_not_found}",
+                   "ETS.Bag.lookup_element!/3 returned {:error, :key_not_found}",
                    fn ->
                      Bag.lookup_element!(bag, :not_a_key, 2)
                    end
@@ -193,17 +193,17 @@ defmodule BagTest do
       Bag.add!(bag, {:a, :e, :f, :g})
 
       assert_raise RuntimeError,
-                   "Ets.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
+                   "ETS.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
                    fn -> Bag.lookup_element!(bag, :a, 5) end
 
       assert_raise RuntimeError,
-                   "Ets.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
+                   "ETS.Bag.lookup_element!/3 returned {:error, :position_out_of_bounds}",
                    fn -> Bag.lookup_element!(bag, :a, 6) end
 
       Bag.delete!(bag)
 
       assert_raise RuntimeError,
-                   "Ets.Bag.lookup_element!/3 returned {:error, :table_not_found}",
+                   "ETS.Bag.lookup_element!/3 returned {:error, :table_not_found}",
                    fn -> Bag.lookup_element!(bag, :not_a_key, 2) end
     end
   end
@@ -213,7 +213,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.match!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.match!/2 returned {:error, :table_not_found}", fn ->
         Bag.match!(bag, {:a})
       end
     end
@@ -222,14 +222,14 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.match!/3 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.match!/3 returned {:error, :table_not_found}", fn ->
         Bag.match!(bag, {:a}, 1)
       end
     end
 
     test "match!/1 raises on error" do
       assert_raise RuntimeError,
-                   "Ets.Bag.match!/1 returned {:error, :invalid_continuation}",
+                   "ETS.Bag.match!/1 returned {:error, :invalid_continuation}",
                    fn ->
                      Bag.match!(:not_a_continuation)
                    end
@@ -241,7 +241,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.select!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.select!/2 returned {:error, :table_not_found}", fn ->
         Bag.select!(bag, [])
       end
     end
@@ -251,7 +251,7 @@ defmodule BagTest do
       Bag.delete(bag)
 
       assert_raise RuntimeError,
-                   "Ets.Bag.select_delete!/2 returned {:error, :table_not_found}",
+                   "ETS.Bag.select_delete!/2 returned {:error, :table_not_found}",
                    fn ->
                      Bag.select_delete!(bag, [])
                    end
@@ -263,7 +263,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.has_key!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.has_key!/2 returned {:error, :table_not_found}", fn ->
         Bag.has_key!(bag, :key)
       end
     end
@@ -274,7 +274,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.to_list!/1 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.to_list!/1 returned {:error, :table_not_found}", fn ->
         Bag.to_list!(bag)
       end
     end
@@ -285,7 +285,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete!(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.delete!/1 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.delete!/1 returned {:error, :table_not_found}", fn ->
         Bag.delete!(bag)
       end
     end
@@ -294,7 +294,7 @@ defmodule BagTest do
       bag = Bag.new!()
       Bag.delete!(bag)
 
-      assert_raise RuntimeError, "Ets.Bag.delete!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Bag.delete!/2 returned {:error, :table_not_found}", fn ->
         Bag.delete!(bag, :a)
       end
     end
@@ -304,7 +304,7 @@ defmodule BagTest do
       Bag.delete!(bag)
 
       assert_raise RuntimeError,
-                   "Ets.Bag.delete_all!/1 returned {:error, :table_not_found}",
+                   "ETS.Bag.delete_all!/1 returned {:error, :table_not_found}",
                    fn ->
                      Bag.delete_all!(bag)
                    end
@@ -314,7 +314,7 @@ defmodule BagTest do
   describe "Wrap Existing" do
     test "wrap_existing!/1 raises on error" do
       assert_raise RuntimeError,
-                   "Ets.Bag.wrap_existing!/1 returned {:error, :table_not_found}",
+                   "ETS.Bag.wrap_existing!/1 returned {:error, :table_not_found}",
                    fn ->
                      Bag.wrap_existing!(:not_a_table)
                    end

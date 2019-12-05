@@ -1,6 +1,6 @@
-defmodule Ets.Set.KeyValueSet do
+defmodule ETS.Set.KeyValueSet do
   @moduledoc """
-  The Key Value Set is an extension of `Ets.Set` which abstracts the concept of tuple records
+  The Key Value Set is an extension of `ETS.Set` which abstracts the concept of tuple records
   away, replacing it with the standard concept of key/value. Behind the scenes, the set stores
   its records as {key, value}.
 
@@ -39,27 +39,27 @@ defmodule Ets.Set.KeyValueSet do
       [k3: :v3]
 
   """
-  use Ets.Utils
-  use Ets.Set.KeyValueSet.Macros
+  use ETS.Utils
+  use ETS.Set.KeyValueSet.Macros
 
   @behaviour Access
 
-  alias Ets
-  alias Ets.Set
-  alias Ets.Set.KeyValueSet
+  alias ETS
+  alias ETS.Set
+  alias ETS.Set.KeyValueSet
 
   @type t :: %__MODULE__{
           set: Set.t()
         }
 
-  @type set_options :: [Ets.Base.option() | {:ordered, boolean()}]
+  @type set_options :: [ETS.Base.option() | {:ordered, boolean()}]
 
   defstruct set: nil
 
   @doc """
   Creates new Key Value Set module with the specified options.
 
-  Possible Options can be found in `Ets.Set` with the difference that specifying a `keypos`
+  Possible Options can be found in `ETS.Set` with the difference that specifying a `keypos`
   will result in an error.
 
   ## Examples
@@ -104,7 +104,7 @@ defmodule Ets.Set.KeyValueSet do
       :my_ets_table
 
   """
-  @spec wrap_existing(Ets.table_identifier()) :: {:ok, KeyValueSet.t()} | {:error, any()}
+  @spec wrap_existing(ETS.table_identifier()) :: {:ok, KeyValueSet.t()} | {:error, any()}
   def wrap_existing(table_identifier) do
     with(
       {:ok, set} <- Set.wrap_existing(table_identifier),
@@ -121,7 +121,7 @@ defmodule Ets.Set.KeyValueSet do
   @doc """
   Same as `wrap_existing/1` but unwraps or raises on error.
   """
-  @spec wrap_existing!(Ets.table_identifier()) :: KeyValueSet.t()
+  @spec wrap_existing!(ETS.table_identifier()) :: KeyValueSet.t()
   def wrap_existing!(table_identifier), do: unwrap_or_raise(wrap_existing(table_identifier))
 
   @doc """
@@ -267,7 +267,7 @@ defmodule Ets.Set.KeyValueSet do
     "Returns info on set"
   end
 
-  delegate_to_set :get_table, 1, ret: Ets.table_reference(), can_raise: false do
+  delegate_to_set :get_table, 1, ret: ETS.table_reference(), can_raise: false do
     "Returns underlying `:ets` table reference"
   end
 

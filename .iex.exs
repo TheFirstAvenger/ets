@@ -1,3 +1,3 @@
-alias Ets.Bag
-alias Ets.Base
-alias Ets.Set
+alias ETS.Bag
+alias ETS.Base
+alias ETS.Set

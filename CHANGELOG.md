@@ -2,6 +2,8 @@
 
 ## Next
 
+* Rename `Ets` to `ETS`
+* Add `select/1` and `select/3` to `ETS.set`
 * Handle and return :position_out_of_bounds error when calling `get_element`/`lookup_element` with a position greater than the size of one of the returned tuples
 * Add documentation for named table usage pattern.
 
@@ -26,7 +28,7 @@
 
 ## 0.6.0
 
-* Add `Ets.Set.KeyValueSet`
+* Add `ETS.Set.KeyValueSet`
 
 ## 0.5.0
 
@@ -36,12 +38,12 @@
 * Implemented `select` for `Set` and `Bag`
 * Implemented `select_delete` for `Set` and `Bag`
 * Implemented `get_element`/`lookup_element` for `Set` and `Bag`
-* Add `Bag`s to `Ets.all`
+* Add `Bag`s to `ETS.all`
 * Add list default option values in `new` documentation
 
 ## 0.4.0
 
-* Implement `Ets.Bag`
+* Implement `ETS.Bag`
 
 ## 0.3.0
 
@@ -60,5 +62,5 @@
 ## 0.2.0
 
 * Redesign from ground up to use module/struct based approach
-* Implemented `Ets.Set` and `Ets.Base`
+* Implemented `ETS.Set` and `ETS.Base`
 * Set up CI and Readme badges

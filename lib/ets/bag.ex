@@ -1,4 +1,4 @@
-defmodule Ets.Bag do
+defmodule ETS.Bag do
   @moduledoc """
   Module for creating and interacting with :ets tables of the type `:bag` and `:duplicate_bag`.
 
@@ -33,21 +33,21 @@ defmodule Ets.Bag do
   the new keys already exist in the bag.
 
   By default, Bags allow duplicate records (each element of the tuple record is identical). To prevent duplicate
-  records, set the `duplicate: false` opt when creating the Bag (if you want to prevent duplicate *keys*, use an `Ets.Set`
+  records, set the `duplicate: false` opt when creating the Bag (if you want to prevent duplicate *keys*, use an `ETS.Set`
   instead). Note that `duplicate: false` will increase the time it takes to add records as the table must be checked for
   duplicates prior to insert. `duplicate: true` maps to the `:ets` table type `:duplicate_bag`, `duplicate: false` maps to `:bag`.
 
   ## Working with named tables
 
-  The functions on `Ets.Bag` require that you pass in an `Ets.Bag` as the first argument. In some design patterns,
-  you may have the table name but an instance of an `Ets.Bag` may not be available to you. If this is the case,
-  you should use `wrap_existing/1` to turn your table name atom into an `Ets.Bag`. For example, a `GenServer` that
+  The functions on `ETS.Bag` require that you pass in an `ETS.Bag` as the first argument. In some design patterns,
+  you may have the table name but an instance of an `ETS.Bag` may not be available to you. If this is the case,
+  you should use `wrap_existing/1` to turn your table name atom into an `ETS.Bag`. For example, a `GenServer` that
   handles writes within the server, but reads in the client process would be implemented like this:
 
   ```
   defmodule MyExampleGenServer do
     use GenServer
-    alias Ets.Bag
+    alias ETS.Bag
 
     # Client Functions
 
@@ -76,9 +76,9 @@ defmodule Ets.Bag do
   ```
 
   """
-  use Ets.Utils
+  use ETS.Utils
 
-  alias Ets.{
+  alias ETS.{
     Bag,
     Base
   }
@@ -86,10 +86,10 @@ defmodule Ets.Bag do
   @type t :: %__MODULE__{
           info: keyword(),
           duplicate: boolean(),
-          table: Ets.table_reference()
+          table: ETS.table_reference()
         }
 
-  @type bag_options :: [Ets.Base.option() | {:duplicate, boolean()}]
+  @type bag_options :: [ETS.Base.option() | {:duplicate, boolean()}]
 
   defstruct table: nil, info: nil, duplicate: nil
 
@@ -182,7 +182,7 @@ defmodule Ets.Bag do
   Returns underlying `:ets` table reference.
 
   For use in functions that are not yet implemented. If you find yourself using this, please consider
-  submitting a PR to add the necessary function to `Ets`.
+  submitting a PR to add the necessary function to `ETS`.
 
   ## Examples
 
@@ -193,13 +193,13 @@ defmodule Ets.Bag do
       :my_ets_table
 
   """
-  @spec get_table(Bag.t()) :: {:ok, Ets.table_reference()}
+  @spec get_table(Bag.t()) :: {:ok, ETS.table_reference()}
   def get_table(%Bag{table: table}), do: {:ok, table}
 
   @doc """
   Same as `get_table/1` but unwraps or raises on error
   """
-  @spec get_table!(Bag.t()) :: Ets.table_reference()
+  @spec get_table!(Bag.t()) :: ETS.table_reference()
   def get_table!(%Bag{} = bag), do: unwrap(get_table(bag))
 
   @doc """
@@ -328,14 +328,14 @@ defmodule Ets.Bag do
       {:ok, [[:h, :i], [:a, :c]]}
 
   """
-  @spec match(Bag.t(), Ets.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec match(Bag.t(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
   def match(%Bag{table: table}, pattern) when is_atom(pattern) or is_tuple(pattern),
     do: Base.match(table, pattern)
 
   @doc """
   Same as `match/2` but unwraps or raises on error.
   """
-  @spec match!(Bag.t(), Ets.match_pattern()) :: [tuple()]
+  @spec match!(Bag.t(), ETS.match_pattern()) :: [tuple()]
   def match!(%Bag{} = bag, pattern) when is_atom(pattern) or is_tuple(pattern),
     do: unwrap_or_raise(match(bag, pattern))
 
@@ -351,14 +351,14 @@ defmodule Ets.Bag do
       [[:e, :f], [:a, :c]]
 
   """
-  @spec match(Bag.t(), Ets.match_pattern(), non_neg_integer()) ::
+  @spec match(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
   def match(%Bag{table: table}, pattern, limit), do: Base.match(table, pattern, limit)
 
   @doc """
   Same as `match/3` but unwraps or raises on error.
   """
-  @spec match!(Bag.t(), Ets.match_pattern(), non_neg_integer()) ::
+  @spec match!(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {[tuple()], any() | :end_of_table}
   def match!(%Bag{} = bag, pattern, limit), do: unwrap_or_raise(match(bag, pattern, limit))
 
@@ -401,14 +401,14 @@ defmodule Ets.Bag do
       {:ok, [[:h, :i], [:a, :c]]}
 
   """
-  @spec select(Bag.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec select(Bag.t(), ETS.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(%Bag{table: table}, spec) when is_list(spec),
     do: Base.select(table, spec)
 
   @doc """
   Same as `select/2` but unwraps or raises on error.
   """
-  @spec select!(Bag.t(), Ets.match_spec()) :: [tuple()]
+  @spec select!(Bag.t(), ETS.match_spec()) :: [tuple()]
   def select!(%Bag{} = bag, spec) when is_list(spec),
     do: unwrap_or_raise(select(bag, spec))
 
@@ -428,14 +428,14 @@ defmodule Ets.Bag do
       [{:e, :c, :f, :g}]
 
   """
-  @spec select_delete(Bag.t(), Ets.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
+  @spec select_delete(Bag.t(), ETS.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(%Bag{table: table}, spec) when is_list(spec),
     do: Base.select_delete(table, spec)
 
   @doc """
   Same as `select_delete/2` but unwraps or raises on error.
   """
-  @spec select_delete!(Bag.t(), Ets.match_spec()) :: non_neg_integer()
+  @spec select_delete!(Bag.t(), ETS.match_spec()) :: non_neg_integer()
   def select_delete!(%Bag{} = bag, spec) when is_list(spec),
     do: unwrap_or_raise(select_delete(bag, spec))
 
@@ -562,7 +562,7 @@ defmodule Ets.Bag do
       :my_ets_table
 
   """
-  @spec wrap_existing(Ets.table_identifier()) :: {:ok, Bag.t()} | {:error, any()}
+  @spec wrap_existing(ETS.table_identifier()) :: {:ok, Bag.t()} | {:error, any()}
   def wrap_existing(table_identifier) do
     case Base.wrap_existing(table_identifier, [:bag, :duplicate_bag]) do
       {:ok, {table, info}} ->
@@ -576,6 +576,6 @@ defmodule Ets.Bag do
   @doc """
   Same as `wrap_existing/1` but unwraps or raises on error.
   """
-  @spec wrap_existing!(Ets.table_identifier()) :: Bag.t()
+  @spec wrap_existing!(ETS.table_identifier()) :: Bag.t()
   def wrap_existing!(table_identifier), do: unwrap_or_raise(wrap_existing(table_identifier))
 end

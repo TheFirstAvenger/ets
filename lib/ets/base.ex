@@ -1,9 +1,9 @@
-defmodule Ets.Base do
+defmodule ETS.Base do
   @moduledoc """
-  Base implementation for table modules (e.g. `Ets.Set` and `Ets.Bag`). Should not be used directly.
+  Base implementation for table modules (e.g. `ETS.Set` and `ETS.Bag`). Should not be used directly.
 
   """
-  use Ets.Utils
+  use ETS.Utils
 
   @protection_types [:public, :protected, :private]
   @type option ::
@@ -20,7 +20,7 @@ defmodule Ets.Base do
 
   @doc false
   @spec new_table(table_types(), keyword()) ::
-          {:ok, {Ets.table_reference(), keyword()}} | {:error, any()}
+          {:ok, {ETS.table_reference(), keyword()}} | {:error, any()}
   def new_table(type, opts) when type in @table_types and is_list(opts) do
     {opts, name} = take_opt(opts, :name, nil)
 
@@ -79,7 +79,7 @@ defmodule Ets.Base do
     do: {:error, {:invalid_option, bad_val}}
 
   @doc false
-  @spec info(Ets.table_identifier()) :: {:ok, keyword()} | {:error, :table_not_found}
+  @spec info(ETS.table_identifier()) :: {:ok, keyword()} | {:error, :table_not_found}
   def info(table) do
     catch_error do
       case :ets.info(table) do
@@ -90,7 +90,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec insert(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
+  @spec insert(ETS.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert(table, record, return) do
     catch_error do
       catch_write_protected table do
@@ -105,7 +105,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec insert_new(Ets.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
+  @spec insert_new(ETS.table_identifier(), tuple(), any()) :: {:ok, any()} | {:error, any()}
   def insert_new(table, record, return) do
     catch_error do
       catch_write_protected table do
@@ -120,7 +120,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec insert_multi(Ets.table_identifier(), list(tuple()), any()) ::
+  @spec insert_multi(ETS.table_identifier(), list(tuple()), any()) ::
           {:ok, any()} | {:error, any()}
   def insert_multi(table, records, return) do
     catch_error do
@@ -138,7 +138,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec insert_multi_new(Ets.table_identifier(), list(tuple), any()) ::
+  @spec insert_multi_new(ETS.table_identifier(), list(tuple), any()) ::
           {:ok, any()} | {:error, any()}
   def insert_multi_new(table, records, return) do
     catch_error do
@@ -156,7 +156,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec to_list(Ets.table_identifier()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec to_list(ETS.table_identifier()) :: {:ok, [tuple()]} | {:error, any()}
   def to_list(table) do
     catch_error do
       catch_table_not_found table do
@@ -166,7 +166,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec lookup(Ets.table_identifier(), any()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec lookup(ETS.table_identifier(), any()) :: {:ok, [tuple()]} | {:error, any()}
   def lookup(table, key) do
     catch_error do
       catch_read_protected table do
@@ -179,7 +179,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec lookup_element(Ets.table_identifier(), any(), non_neg_integer()) ::
+  @spec lookup_element(ETS.table_identifier(), any(), non_neg_integer()) ::
           {:ok, any()} | {:error, any()}
   def lookup_element(table, key, pos) do
     catch_error do
@@ -197,7 +197,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec match(Ets.table_identifier(), Ets.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec match(ETS.table_identifier(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
   def match(table, pattern) do
     catch_error do
       catch_read_protected table do
@@ -210,7 +210,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec match(Ets.table_identifier(), Ets.match_pattern(), non_neg_integer()) ::
+  @spec match(ETS.table_identifier(), ETS.match_pattern(), non_neg_integer()) ::
           {:ok, {[tuple()], any()}} | {:error, any()}
   def match(table, pattern, limit) do
     catch_error do
@@ -243,8 +243,8 @@ defmodule Ets.Base do
     end
   end
 
-  @spec select(Ets.continuation()) ::
-          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  @spec select(ETS.continuation()) ::
+          {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(continuation) do
     catch_error do
       catch_invalid_continuation continuation do
@@ -255,7 +255,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec select(Ets.table_identifier(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec select(ETS.table_identifier(), ETS.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(table, spec) when is_list(spec) do
     catch_error do
       catch_read_protected table do
@@ -270,8 +270,8 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec select(Ets.table_identifier(), Ets.match_spec(), limit :: integer) ::
-          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  @spec select(ETS.table_identifier(), ETS.match_spec(), limit :: integer) ::
+          {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(table, spec, limit) when is_list(spec) do
     catch_error do
       catch_read_protected table do
@@ -286,7 +286,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec select_delete(Ets.table_identifier(), Ets.match_spec()) ::
+  @spec select_delete(ETS.table_identifier(), ETS.match_spec()) ::
           {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(table, spec) when is_list(spec) do
     catch_error do
@@ -302,7 +302,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec has_key(Ets.table_identifier(), any()) :: {:ok, boolean()} | {:error, any()}
+  @spec has_key(ETS.table_identifier(), any()) :: {:ok, boolean()} | {:error, any()}
   def has_key(table, key) do
     catch_error do
       catch_read_protected table do
@@ -314,7 +314,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec first(Ets.table_identifier()) :: {:ok, any()} | {:error, any()}
+  @spec first(ETS.table_identifier()) :: {:ok, any()} | {:error, any()}
   def first(table) do
     catch_error do
       catch_read_protected table do
@@ -329,7 +329,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec last(Ets.table_identifier()) :: {:ok, any()} | {:error, any()}
+  @spec last(ETS.table_identifier()) :: {:ok, any()} | {:error, any()}
   def last(table) do
     catch_error do
       catch_read_protected table do
@@ -344,7 +344,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec next(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
+  @spec next(ETS.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def next(table, key) do
     catch_error do
       catch_read_protected table do
@@ -359,7 +359,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec previous(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
+  @spec previous(ETS.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def previous(table, key) do
     catch_error do
       catch_read_protected table do
@@ -374,7 +374,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec delete(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
+  @spec delete(ETS.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def delete(table, return) do
     catch_error do
       catch_write_protected table do
@@ -387,7 +387,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec delete_records(Ets.table_identifier(), any(), any()) :: {:ok, any()} | {:error, any()}
+  @spec delete_records(ETS.table_identifier(), any(), any()) :: {:ok, any()} | {:error, any()}
   def delete_records(table, key, return) do
     catch_error do
       catch_write_protected table do
@@ -400,7 +400,7 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec delete_all_records(Ets.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
+  @spec delete_all_records(ETS.table_identifier(), any()) :: {:ok, any()} | {:error, any()}
   def delete_all_records(table, return) do
     catch_error do
       catch_write_protected table do
@@ -413,8 +413,8 @@ defmodule Ets.Base do
   end
 
   @doc false
-  @spec wrap_existing(Ets.table_identifier(), [table_types]) ::
-          {:ok, {Ets.table_reference(), keyword()}} | {:error, any()}
+  @spec wrap_existing(ETS.table_identifier(), [table_types]) ::
+          {:ok, {ETS.table_reference(), keyword()}} | {:error, any()}
   def wrap_existing(table, valid_types) do
     catch_error do
       catch_table_not_found table do
