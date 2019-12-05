@@ -1,12 +1,12 @@
-defmodule Ets.Utils do
+defmodule ETS.Utils do
   @moduledoc """
-  Contains helper macros used by `Ets` modules.
+  Contains helper macros used by `ETS` modules.
   """
 
   defmacro __using__(_) do
     quote do
       require Logger
-      import Ets.Utils
+      import ETS.Utils
     end
   end
 
@@ -69,7 +69,7 @@ defmodule Ets.Utils do
         unquote(do_block)
       rescue
         e in ArgumentError ->
-          case Ets.Base.lookup(unquote(table), unquote(key)) do
+          case ETS.Base.lookup(unquote(table), unquote(key)) do
             {:ok, []} -> {:error, :key_not_found}
             _ -> reraise(e, __STACKTRACE__)
           end
@@ -149,7 +149,7 @@ defmodule Ets.Utils do
         unquote(do_block)
       rescue
         e in ArgumentError ->
-          if Ets.Utils.valid_select_spec?(unquote(spec)) do
+          if ETS.Utils.valid_select_spec?(unquote(spec)) do
             reraise(e, __STACKTRACE__)
           else
             {:error, :invalid_select_spec}
@@ -190,7 +190,7 @@ defmodule Ets.Utils do
   defmacro catch_invalid_continuation(continuation, do: do_block) do
     quote do
       try do
-        case Ets.Utils.continuation_table(unquote(continuation)) do
+        case ETS.Utils.continuation_table(unquote(continuation)) do
           {:ok, :"$end_of_table"} ->
             unquote(do_block)
 
@@ -206,7 +206,7 @@ defmodule Ets.Utils do
         end
       rescue
         e in ArgumentError ->
-          if Ets.Utils.valid_continuation?(unquote(continuation)) do
+          if ETS.Utils.valid_continuation?(unquote(continuation)) do
             {:error, :invalid_continuation}
           else
             reraise(e, __STACKTRACE__)

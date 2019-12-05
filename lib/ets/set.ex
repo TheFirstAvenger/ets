@@ -1,4 +1,4 @@
-defmodule Ets.Set do
+defmodule ETS.Set do
   @moduledoc """
   Module for creating and interacting with :ets tables of the type `:set` and `:ordered_set`.
 
@@ -40,9 +40,9 @@ defmodule Ets.Set do
 
   ## Working with named tables
 
-  The functions on `Ets.Set` require that you pass in an `Ets.Set` as the first argument. In some design patterns,
-  you may have the table name but an instance of an `Ets.Set` may not be available to you. If this is the case,
-  you should use `wrap_existing/1` to turn your table name atom into an `Ets.Set`. For example, a `GenServer` that
+  The functions on `ETS.Set` require that you pass in an `ETS.Set` as the first argument. In some design patterns,
+  you may have the table name but an instance of an `ETS.Set` may not be available to you. If this is the case,
+  you should use `wrap_existing/1` to turn your table name atom into an `ETS.Set`. For example, a `GenServer` that
   handles writes within the server, but reads in the client process would be implemented like this:
 
   ```
@@ -53,8 +53,8 @@ defmodule Ets.Set do
 
     def get_token_for_user(user_id) do
       :my_token_table
-      |> Ets.Set.wrap_existing!()
-      |> Ets.Set.get!(user_id)
+      |> ETS.Set.wrap_existing!()
+      |> ETS.Set.get!(user_id)
       |> elem(1)
     end
 
@@ -65,20 +65,20 @@ defmodule Ets.Set do
     # Server Functions
 
     def init(_) do
-      {:ok, %{set: Ets.Set.new!(name: :my_token_table)}}
+      {:ok, %{set: ETS.Set.new!(name: :my_token_table)}}
     end
 
     def handle_call({:set_token_for_user, user_id, token}, _from, %{set: set}) do
-      Ets.Set.put(set, user_id, token)
+      ETS.Set.put(set, user_id, token)
     end
   end
 
   ```
 
   """
-  use Ets.Utils
+  use ETS.Utils
 
-  alias Ets.{
+  alias ETS.{
     Base,
     Set
   }
@@ -86,10 +86,10 @@ defmodule Ets.Set do
   @type t :: %__MODULE__{
           info: keyword(),
           ordered: boolean(),
-          table: Ets.table_reference()
+          table: ETS.table_reference()
         }
 
-  @type set_options :: [Ets.Base.option() | {:ordered, boolean()}]
+  @type set_options :: [ETS.Base.option() | {:ordered, boolean()}]
 
   defstruct table: nil, info: nil, ordered: nil
 
@@ -182,7 +182,7 @@ defmodule Ets.Set do
   Returns underlying `:ets` table reference.
 
   For use in functions that are not yet implemented. If you find yourself using this, please consider
-  submitting a PR to add the necessary function to `Ets`.
+  submitting a PR to add the necessary function to `ETS`.
 
   ## Examples
 
@@ -193,13 +193,13 @@ defmodule Ets.Set do
       :my_ets_table
 
   """
-  @spec get_table(Set.t()) :: {:ok, Ets.table_reference()}
+  @spec get_table(Set.t()) :: {:ok, ETS.table_reference()}
   def get_table(%Set{table: table}), do: {:ok, table}
 
   @doc """
   Same as `get_table/1` but unwraps or raises on error
   """
-  @spec get_table!(Set.t()) :: Ets.table_reference()
+  @spec get_table!(Set.t()) :: ETS.table_reference()
   def get_table!(%Set{} = set), do: unwrap(get_table(set))
 
   @doc """
@@ -322,14 +322,14 @@ defmodule Ets.Set do
       {:ok, [[:a, :c], [:h, :i]]}
 
   """
-  @spec match(Set.t(), Ets.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec match(Set.t(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
   def match(%Set{table: table}, pattern) when is_atom(pattern) or is_tuple(pattern),
     do: Base.match(table, pattern)
 
   @doc """
   Same as `match/2` but unwraps or raises on error.
   """
-  @spec match!(Set.t(), Ets.match_pattern()) :: [tuple()]
+  @spec match!(Set.t(), ETS.match_pattern()) :: [tuple()]
   def match!(%Set{} = set, pattern) when is_atom(pattern) or is_tuple(pattern),
     do: unwrap_or_raise(match(set, pattern))
 
@@ -345,14 +345,14 @@ defmodule Ets.Set do
       [[:a, :c], [:e, :f]]
 
   """
-  @spec match(Set.t(), Ets.match_pattern(), non_neg_integer()) ::
+  @spec match(Set.t(), ETS.match_pattern(), non_neg_integer()) ::
           {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
   def match(%Set{table: table}, pattern, limit), do: Base.match(table, pattern, limit)
 
   @doc """
   Same as `match/3` but unwraps or raises on error.
   """
-  @spec match!(Set.t(), Ets.match_pattern(), non_neg_integer()) ::
+  @spec match!(Set.t(), ETS.match_pattern(), non_neg_integer()) ::
           {[tuple()], any() | :end_of_table}
   def match!(%Set{} = set, pattern, limit), do: unwrap_or_raise(match(set, pattern, limit))
 
@@ -382,11 +382,11 @@ defmodule Ets.Set do
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
 
-  @spec select(Ets.continuation()) ::
-          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  @spec select(ETS.continuation()) ::
+          {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(continuation), do: Base.select(continuation)
 
-  @spec select!(Ets.continuation()) :: {[tuple()], Ets.continuation()} | Ets.end_of_table()
+  @spec select!(ETS.continuation()) :: {[tuple()], ETS.continuation()} | ETS.end_of_table()
   def select!(continuation) do
     unwrap_or_raise(select(continuation))
   end
@@ -404,30 +404,30 @@ defmodule Ets.Set do
       {:ok, [[:a, :c], [:h, :i]]}
 
   """
-  @spec select(Set.t(), Ets.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
+  @spec select(Set.t(), ETS.match_spec()) :: {:ok, [tuple()]} | {:error, any()}
   def select(%Set{table: table}, spec) when is_list(spec),
     do: Base.select(table, spec)
 
   @doc """
   Same as `select/2` but unwraps or raises on error.
   """
-  @spec select!(Set.t(), Ets.match_spec()) :: [tuple()]
+  @spec select!(Set.t(), ETS.match_spec()) :: [tuple()]
   def select!(%Set{} = set, spec) when is_list(spec),
     do: unwrap_or_raise(select(set, spec))
 
   @doc """
   Same as `select/2` but limits the number of results returned.
   """
-  @spec select(Set.t(), Ets.match_spec(), limit :: integer) ::
-          {:ok, {[tuple()], Ets.continuation()} | Ets.end_of_table()} | {:error, any()}
+  @spec select(Set.t(), ETS.match_spec(), limit :: integer) ::
+          {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(%Set{table: table}, spec, limit) when is_list(spec),
     do: Base.select(table, spec, limit)
 
   @doc """
   Same as `select/3` but unwraps or raises on error.
   """
-  @spec select!(Set.t(), Ets.match_spec(), limit :: integer) ::
-          {[tuple()], Ets.continuation()} | Ets.end_of_table()
+  @spec select!(Set.t(), ETS.match_spec(), limit :: integer) ::
+          {[tuple()], ETS.continuation()} | ETS.end_of_table()
   def select!(%Set{} = set, spec, limit) when is_list(spec),
     do: unwrap_or_raise(select(set, spec, limit))
 
@@ -447,14 +447,14 @@ defmodule Ets.Set do
       [{:e, :c, :f, :g}]
 
   """
-  @spec select_delete(Set.t(), Ets.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
+  @spec select_delete(Set.t(), ETS.match_spec()) :: {:ok, non_neg_integer()} | {:error, any()}
   def select_delete(%Set{table: table}, spec) when is_list(spec),
     do: Base.select_delete(table, spec)
 
   @doc """
   Same as `select_delete/2` but unwraps or raises on error.
   """
-  @spec select_delete!(Set.t(), Ets.match_spec()) :: non_neg_integer()
+  @spec select_delete!(Set.t(), ETS.match_spec()) :: non_neg_integer()
   def select_delete!(%Set{} = set, spec) when is_list(spec),
     do: unwrap_or_raise(select_delete(set, spec))
 
@@ -708,7 +708,7 @@ defmodule Ets.Set do
       :my_ets_table
 
   """
-  @spec wrap_existing(Ets.table_identifier()) :: {:ok, Set.t()} | {:error, any()}
+  @spec wrap_existing(ETS.table_identifier()) :: {:ok, Set.t()} | {:error, any()}
   def wrap_existing(table_identifier) do
     case Base.wrap_existing(table_identifier, [:set, :ordered_set]) do
       {:ok, {table, info}} ->
@@ -722,6 +722,6 @@ defmodule Ets.Set do
   @doc """
   Same as `wrap_existing/1` but unwraps or raises on error.
   """
-  @spec wrap_existing!(Ets.table_identifier()) :: Set.t()
+  @spec wrap_existing!(ETS.table_identifier()) :: Set.t()
   def wrap_existing!(table_identifier), do: unwrap_or_raise(wrap_existing(table_identifier))
 end

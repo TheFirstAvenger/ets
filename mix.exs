@@ -1,4 +1,4 @@
-defmodule Ets.MixProject do
+defmodule ETS.MixProject do
   use Mix.Project
 
   def project do
@@ -9,7 +9,7 @@ defmodule Ets.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
-      docs: [main: "Ets", extras: ["README.md"]],
+      docs: [main: "ETS", extras: ["README.md"]],
       package: package(),
       source_url: "https://github.com/TheFirstAvenger/ets",
       test_coverage: [tool: ExCoveralls],

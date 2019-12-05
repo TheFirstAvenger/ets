@@ -1,4 +1,4 @@
-# Ets
+# ETS
 
 `:ets`, the Elixir way
 
@@ -8,13 +8,13 @@
 [![Hex.pm package](https://img.shields.io/hexpm/v/ets.svg)](https://hex.pm/packages/ets)
 [![Hex.pm downloads](https://img.shields.io/hexpm/dt/ets.svg)](https://hex.pm/packages/ets)
 
-Ets is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
+ETS is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
 
 ## Current Features
 
-* `Ets.Set` - wraps `:set` and `:ordered_set`
-* `Ets.Bag` - wraps `:bag` and `:duplicate_bag`
-* `Ets.Set.KeyValueSet` - extension of `Ets.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
+* `ETS.Set` - wraps `:set` and `:ordered_set`
+* `ETS.Bag` - wraps `:bag` and `:duplicate_bag`
+* `ETS.Set.KeyValueSet` - extension of `ETS.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
 * Most used functions from `:ets` replicated for all wrappers
 * Returns {:error, reason} tuples (or raises in ! versions) for:
   * `:table_not_found`
@@ -44,10 +44,10 @@ This will be accomplished by:
   * Fall back to `{:error, :unknown_error}` (logging details) if unable to determine reason.
 * Appropriate error returns/raises when encountering `$end_of_table`.
 * Providing Elixir friendly documentation.
-* Providing `Ets.Set` and `Ets.Bag` modules with appropriate function signatures and error handling.
-  * `Ets.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
+* Providing `ETS.Set` and `ETS.Bag` modules with appropriate function signatures and error handling.
+  * `ETS.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
 * Providing abstractions on top of the two base modules for specific usages
-  * `Ets.Set.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
+  * `ETS.Set.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
 
 ## Changes
 
@@ -55,11 +55,11 @@ For a list of changes, see the [changelog](CHANGELOG.md)
 
 ## Usage
 
-### Creating Ets Tables
+### Creating ETS Tables
 
-Ets Tables can be created using the `new` function of the appropriate module, either `Ets.Set`
-(for ordered and unordered sets) or `Ets.Bag` (for duplicate or non-duplicate bags).
-See module documentation for more examples and documentation, including a guide on [What type of Ets table should I use?](lib/ets.ex).
+ETS Tables can be created using the `new` function of the appropriate module, either `ETS.Set`
+(for ordered and unordered sets) or `ETS.Bag` (for duplicate or non-duplicate bags).
+See module documentation for more examples and documentation, including a guide on [What type of ETS table should I use?](lib/ets.ex).
 
 #### Create Examples
 
@@ -78,7 +78,7 @@ iex> set = Set.wrap_existing!(:my_ets_table)
 
 ### Adding/Updating/Retrieving records in Sets
 
-To add records to an Ets table, use `put` or `put_new` with a tuple record or a list of tuple records.
+To add records to an ETS table, use `put` or `put_new` with a tuple record or a list of tuple records.
 `put` will overwrite existing records with the same key. `put_new` not insert if the key
 already exists. When passing a list of tuple records, all records are inserted in an atomic and
 isolated manner, but with `put_new` no records are inserted if at least one existing key is found.
@@ -133,9 +133,9 @@ iex> Bag.to_list(bag)
 
 ### Base Modules
 
-* [X] `Ets`
+* [X] `ETS`
   * [X] All
-* [X] `Ets.Set`
+* [X] `ETS.Set`
   * [x] Put (insert)
   * [x] Get (lookup)
   * [x] Get Element
@@ -153,7 +153,7 @@ iex> Bag.to_list(bag)
   * [X] Delete
   * [X] To List (tab2list)
   * [X] Wrap
-* [X] `Ets.Bag`
+* [X] `ETS.Bag`
   * [x] Add (insert)
   * [x] Lookup
   * [x] Lookup Element
@@ -170,7 +170,7 @@ iex> Bag.to_list(bag)
 
 ### Abstractions
 
-* [X] `Ets.Set.KeyValueSet`
+* [X] `ETS.Set.KeyValueSet`
   * [x] New
   * [x] Wrap Existing
   * [x] Put
@@ -190,7 +190,7 @@ iex> Bag.to_list(bag)
 
 ## Installation
 
-`Ets` can be installed by adding `ets` to your list of dependencies in `mix.exs`:
+`ETS` can be installed by adding `ets` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do

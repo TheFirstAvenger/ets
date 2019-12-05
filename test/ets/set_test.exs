@@ -1,7 +1,7 @@
 defmodule SetTest do
   use ExUnit.Case
-  alias Ets.Set
-  doctest Ets.Set
+  alias ETS.Set
+  doctest ETS.Set
 
   describe "New" do
     test "Named Ordered Set" do
@@ -30,7 +30,7 @@ defmodule SetTest do
       name = table_name()
       assert %Set{} = Set.new!(name: name)
 
-      assert_raise(RuntimeError, "Ets.Set.new!/1 returned {:error, :table_already_exists}", fn ->
+      assert_raise(RuntimeError, "ETS.Set.new!/1 returned {:error, :table_already_exists}", fn ->
         Set.new!(name: name)
       end)
     end
@@ -75,7 +75,7 @@ defmodule SetTest do
   describe "Rejects bad options" do
     test "Ordered" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:ordered, :this_isnt_a_boolean}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:ordered, :this_isnt_a_boolean}}}",
                    fn ->
                      Set.new!(ordered: :this_isnt_a_boolean)
                    end
@@ -83,7 +83,7 @@ defmodule SetTest do
 
     test "Access" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
                    fn ->
                      Set.new!(protection: :nobody)
                    end
@@ -91,25 +91,25 @@ defmodule SetTest do
 
     test "Heir" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
                    fn ->
                      Set.new!(heir: :nobody)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
                    fn -> Set.new!(heir: {:not_a_pid, :data}) end
     end
 
     test "Keypos" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
                    fn ->
                      Set.new!(keypos: -1)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:keypos, :not_a_number}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:keypos, :not_a_number}}}",
                    fn ->
                      Set.new!(keypos: :not_a_number)
                    end
@@ -117,19 +117,19 @@ defmodule SetTest do
 
     test "Read Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
                    fn -> Set.new!(read_concurrency: :not_a_boolean) end
     end
 
     test "Write Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
                    fn -> Set.new!(write_concurrency: :not_a_boolean) end
     end
 
     test "Compressed" do
       assert_raise RuntimeError,
-                   "Ets.Set.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
+                   "ETS.Set.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
                    fn -> Set.new!(compressed: :not_a_boolean) end
     end
   end
@@ -158,7 +158,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete!(set)
 
-      assert_raise RuntimeError, "Ets.Set.info!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.info!/2 returned {:error, :table_not_found}", fn ->
         Set.info!(set, true)
       end
     end
@@ -199,23 +199,23 @@ defmodule SetTest do
     test "raises on error" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :invalid_record}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :invalid_record}", fn ->
         Set.put!(set, [:a])
       end
 
       Set.delete!(set)
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :table_not_found}", fn ->
         Set.put!(set, {:a})
       end
 
       set2 = Set.new!(keypos: 3)
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :record_too_small}", fn ->
         Set.put!(set2, {:a, :b})
       end
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :record_too_small}", fn ->
         Set.put!(set2, [{:a, :b}, {:c}])
       end
 
@@ -233,11 +233,11 @@ defmodule SetTest do
           {:table, set1, set2} -> {set1, set2}
         end
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :write_protected}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :write_protected}", fn ->
         Set.put!(set1, {:a, :b, :c})
       end
 
-      assert_raise RuntimeError, "Ets.Set.put!/2 returned {:error, :write_protected}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put!/2 returned {:error, :write_protected}", fn ->
         Set.put!(set2, {:a, :b, :c})
       end
     end
@@ -270,25 +270,25 @@ defmodule SetTest do
     test "raises on error" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :invalid_record}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put_new!/2 returned {:error, :invalid_record}", fn ->
         Set.put_new!(set, [:a])
       end
 
       Set.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.put_new!/2 returned {:error, :table_not_found}",
+                   "ETS.Set.put_new!/2 returned {:error, :table_not_found}",
                    fn ->
                      Set.put_new!(set, {:a})
                    end
 
       set2 = Set.new!(keypos: 3)
 
-      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
         Set.put_new!(set2, {:a, :b})
       end
 
-      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put_new!/2 returned {:error, :record_too_small}", fn ->
         Set.put_new!(set2, [{:a, :b}, {:c}])
       end
 
@@ -306,11 +306,11 @@ defmodule SetTest do
           {:table, set1, set2} -> {set1, set2}
         end
 
-      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :write_protected}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put_new!/2 returned {:error, :write_protected}", fn ->
         Set.put_new!(set1, {:a, :b, :c})
       end
 
-      assert_raise RuntimeError, "Ets.Set.put_new!/2 returned {:error, :write_protected}", fn ->
+      assert_raise RuntimeError, "ETS.Set.put_new!/2 returned {:error, :write_protected}", fn ->
         Set.put_new!(set2, {:a, :b, :c})
       end
     end
@@ -343,7 +343,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete!(set)
 
-      assert_raise RuntimeError, "Ets.Set.get!/3 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.get!/3 returned {:error, :table_not_found}", fn ->
         Set.get!(set, :a)
       end
 
@@ -360,7 +360,7 @@ defmodule SetTest do
           {:table, set} -> set
         end
 
-      assert_raise RuntimeError, "Ets.Set.get!/3 returned {:error, :read_protected}", fn ->
+      assert_raise RuntimeError, "ETS.Set.get!/3 returned {:error, :read_protected}", fn ->
         Set.get!(set, :a)
       end
     end
@@ -384,20 +384,20 @@ defmodule SetTest do
     test "raises on error" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.get_element!/3 returned {:error, :key_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.get_element!/3 returned {:error, :key_not_found}", fn ->
         Set.get_element!(set, :not_a_key, 2)
       end
 
       Set.put!(set, {:a, :b, :c, :d})
 
       assert_raise RuntimeError,
-                   "Ets.Set.get_element!/3 returned {:error, :position_out_of_bounds}",
+                   "ETS.Set.get_element!/3 returned {:error, :position_out_of_bounds}",
                    fn -> Set.get_element!(set, :a, 5) end
 
       Set.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.get_element!/3 returned {:error, :table_not_found}",
+                   "ETS.Set.get_element!/3 returned {:error, :table_not_found}",
                    fn -> Set.get_element!(set, :not_a_key, 2) end
     end
   end
@@ -407,7 +407,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.match!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.match!/2 returned {:error, :table_not_found}", fn ->
         Set.match!(set, {:a})
       end
     end
@@ -416,14 +416,14 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.match!/3 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.match!/3 returned {:error, :table_not_found}", fn ->
         Set.match!(set, {:a}, 1)
       end
     end
 
     test "match!/1 raises on error" do
       assert_raise RuntimeError,
-                   "Ets.Set.match!/1 returned {:error, :invalid_continuation}",
+                   "ETS.Set.match!/1 returned {:error, :invalid_continuation}",
                    fn ->
                      Set.match!(:not_a_continuation)
                    end
@@ -435,7 +435,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.select!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.select!/2 returned {:error, :table_not_found}", fn ->
         Set.select!(set, [])
       end
     end
@@ -445,7 +445,7 @@ defmodule SetTest do
       Set.delete(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.select_delete!/2 returned {:error, :table_not_found}",
+                   "ETS.Set.select_delete!/2 returned {:error, :table_not_found}",
                    fn ->
                      Set.select_delete!(set, [])
                    end
@@ -455,7 +455,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.select!/3 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.select!/3 returned {:error, :table_not_found}", fn ->
         Set.select!(set, [{[:"$"], [], [:"$_"]}], 10)
       end
     end
@@ -469,7 +469,7 @@ defmodule SetTest do
 
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.select!/1 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.select!/1 returned {:error, :table_not_found}", fn ->
         Set.select!(continuation)
       end
     end
@@ -492,7 +492,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.has_key!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.has_key!/2 returned {:error, :table_not_found}", fn ->
         Set.has_key!(set, :key)
       end
     end
@@ -502,7 +502,7 @@ defmodule SetTest do
     test "first!/1 requires ordered set" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.first!/1 returned {:error, :set_not_ordered}", fn ->
+      assert_raise RuntimeError, "ETS.Set.first!/1 returned {:error, :set_not_ordered}", fn ->
         Set.first!(set)
       end
     end
@@ -512,7 +512,7 @@ defmodule SetTest do
     test "last!/1 requires ordered set" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.last!/1 returned {:error, :set_not_ordered}", fn ->
+      assert_raise RuntimeError, "ETS.Set.last!/1 returned {:error, :set_not_ordered}", fn ->
         Set.last!(set)
       end
     end
@@ -522,7 +522,7 @@ defmodule SetTest do
     test "next!/2 requires ordered set" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.next!/2 returned {:error, :set_not_ordered}", fn ->
+      assert_raise RuntimeError, "ETS.Set.next!/2 returned {:error, :set_not_ordered}", fn ->
         Set.next!(set, :a)
       end
     end
@@ -532,7 +532,7 @@ defmodule SetTest do
     test "previous!/2 requires ordered set" do
       set = Set.new!()
 
-      assert_raise RuntimeError, "Ets.Set.previous!/2 returned {:error, :set_not_ordered}", fn ->
+      assert_raise RuntimeError, "ETS.Set.previous!/2 returned {:error, :set_not_ordered}", fn ->
         Set.previous!(set, :a)
       end
     end
@@ -543,7 +543,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete(set)
 
-      assert_raise RuntimeError, "Ets.Set.to_list!/1 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.to_list!/1 returned {:error, :table_not_found}", fn ->
         Set.to_list!(set)
       end
     end
@@ -554,7 +554,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete!(set)
 
-      assert_raise RuntimeError, "Ets.Set.delete!/1 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.delete!/1 returned {:error, :table_not_found}", fn ->
         Set.delete!(set)
       end
     end
@@ -563,7 +563,7 @@ defmodule SetTest do
       set = Set.new!()
       Set.delete!(set)
 
-      assert_raise RuntimeError, "Ets.Set.delete!/2 returned {:error, :table_not_found}", fn ->
+      assert_raise RuntimeError, "ETS.Set.delete!/2 returned {:error, :table_not_found}", fn ->
         Set.delete!(set, :a)
       end
     end
@@ -573,7 +573,7 @@ defmodule SetTest do
       Set.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.delete_all!/1 returned {:error, :table_not_found}",
+                   "ETS.Set.delete_all!/1 returned {:error, :table_not_found}",
                    fn ->
                      Set.delete_all!(set)
                    end
@@ -583,7 +583,7 @@ defmodule SetTest do
   describe "Wrap Existing" do
     test "wrap_existing!/1 raises on error" do
       assert_raise RuntimeError,
-                   "Ets.Set.wrap_existing!/1 returned {:error, :table_not_found}",
+                   "ETS.Set.wrap_existing!/1 returned {:error, :table_not_found}",
                    fn ->
                      Set.wrap_existing!(:not_a_table)
                    end

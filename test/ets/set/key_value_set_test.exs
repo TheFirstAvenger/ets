@@ -1,8 +1,8 @@
 defmodule KeyValueSetTest do
   use ExUnit.Case
-  alias Ets.Set
-  alias Ets.Set.KeyValueSet
-  doctest Ets.Set.KeyValueSet
+  alias ETS.Set
+  alias ETS.Set.KeyValueSet
+  doctest ETS.Set.KeyValueSet
 
   describe "New" do
     test "Named Ordered KeyValueSet" do
@@ -33,7 +33,7 @@ defmodule KeyValueSetTest do
 
       assert_raise(
         RuntimeError,
-        "Ets.Set.KeyValueSet.new!/1 returned {:error, :table_already_exists}",
+        "ETS.Set.KeyValueSet.new!/1 returned {:error, :table_already_exists}",
         fn ->
           KeyValueSet.new!(name: name)
         end
@@ -75,7 +75,7 @@ defmodule KeyValueSetTest do
   describe "Rejects bad options" do
     test "Ordered" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:ordered, :this_isnt_a_boolean}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:ordered, :this_isnt_a_boolean}}}",
                    fn ->
                      KeyValueSet.new!(ordered: :this_isnt_a_boolean)
                    end
@@ -83,7 +83,7 @@ defmodule KeyValueSetTest do
 
     test "Access" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:protection, :nobody}}}",
                    fn ->
                      KeyValueSet.new!(protection: :nobody)
                    end
@@ -91,37 +91,37 @@ defmodule KeyValueSetTest do
 
     test "Heir" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:heir, :nobody}}}",
                    fn ->
                      KeyValueSet.new!(heir: :nobody)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:heir, {:not_a_pid, :data}}}}",
                    fn -> KeyValueSet.new!(heir: {:not_a_pid, :data}) end
     end
 
     test "Keypos" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, -1}}}",
                    fn ->
                      KeyValueSet.new!(keypos: -1)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, 3}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, 3}}}",
                    fn ->
                      KeyValueSet.new!(keypos: 3)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, :this_is_not_a_number}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, :this_is_not_a_number}}}",
                    fn ->
                      KeyValueSet.new!(keypos: :this_is_not_a_number)
                    end
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, 1}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:keypos, 1}}}",
                    fn ->
                      KeyValueSet.new!(keypos: 1)
                    end
@@ -129,19 +129,19 @@ defmodule KeyValueSetTest do
 
     test "Read Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:read_concurrency, :not_a_boolean}}}",
                    fn -> KeyValueSet.new!(read_concurrency: :not_a_boolean) end
     end
 
     test "Write Concurrency" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:write_concurrency, :not_a_boolean}}}",
                    fn -> KeyValueSet.new!(write_concurrency: :not_a_boolean) end
     end
 
     test "Compressed" do
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
+                   "ETS.Set.KeyValueSet.new!/1 returned {:error, {:invalid_option, {:compressed, :not_a_boolean}}}",
                    fn -> KeyValueSet.new!(compressed: :not_a_boolean) end
     end
   end
@@ -151,7 +151,7 @@ defmodule KeyValueSetTest do
       table = :ets.new(nil, [:bag])
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.wrap_existing!/1 returned {:error, :invalid_type}",
+                   "ETS.Set.KeyValueSet.wrap_existing!/1 returned {:error, :invalid_type}",
                    fn -> KeyValueSet.wrap_existing!(table) end
     end
 
@@ -159,7 +159,7 @@ defmodule KeyValueSetTest do
       table = :ets.new(nil, [:set, keypos: 2])
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.wrap_existing!/1 returned {:error, :invalid_keypos}",
+                   "ETS.Set.KeyValueSet.wrap_existing!/1 returned {:error, :invalid_keypos}",
                    fn -> KeyValueSet.wrap_existing!(table) end
     end
 
@@ -204,7 +204,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.info!/2 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.info!/2 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.info!(set, true)
                    end
@@ -242,7 +242,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.put!/3 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.put!/3 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.put!(set, :a, :b)
                    end
@@ -271,7 +271,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.put_new!/3 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.put_new!/3 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.put_new!(set, :a, :b)
                    end
@@ -306,7 +306,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.get!/3 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.get!/3 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.get!(set, :a)
                    end
@@ -319,7 +319,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.has_key!/2 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.has_key!/2 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.has_key!(set, :key)
                    end
@@ -331,7 +331,7 @@ defmodule KeyValueSetTest do
       set = KeyValueSet.new!()
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.first!/1 returned {:error, :set_not_ordered}",
+                   "ETS.Set.KeyValueSet.first!/1 returned {:error, :set_not_ordered}",
                    fn ->
                      KeyValueSet.first!(set)
                    end
@@ -343,7 +343,7 @@ defmodule KeyValueSetTest do
       set = KeyValueSet.new!()
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.last!/1 returned {:error, :set_not_ordered}",
+                   "ETS.Set.KeyValueSet.last!/1 returned {:error, :set_not_ordered}",
                    fn ->
                      KeyValueSet.last!(set)
                    end
@@ -355,7 +355,7 @@ defmodule KeyValueSetTest do
       set = KeyValueSet.new!()
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.next!/2 returned {:error, :set_not_ordered}",
+                   "ETS.Set.KeyValueSet.next!/2 returned {:error, :set_not_ordered}",
                    fn ->
                      KeyValueSet.next!(set, :a)
                    end
@@ -367,7 +367,7 @@ defmodule KeyValueSetTest do
       set = KeyValueSet.new!()
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.previous!/2 returned {:error, :set_not_ordered}",
+                   "ETS.Set.KeyValueSet.previous!/2 returned {:error, :set_not_ordered}",
                    fn ->
                      KeyValueSet.previous!(set, :a)
                    end
@@ -380,7 +380,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.to_list!/1 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.to_list!/1 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.to_list!(set)
                    end
@@ -393,7 +393,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.delete!/1 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.delete!/1 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.delete!(set)
                    end
@@ -404,7 +404,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.delete!/2 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.delete!/2 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.delete!(set, :a)
                    end
@@ -415,7 +415,7 @@ defmodule KeyValueSetTest do
       KeyValueSet.delete!(set)
 
       assert_raise RuntimeError,
-                   "Ets.Set.KeyValueSet.delete_all!/1 returned {:error, :table_not_found}",
+                   "ETS.Set.KeyValueSet.delete_all!/1 returned {:error, :table_not_found}",
                    fn ->
                      KeyValueSet.delete_all!(set)
                    end

@@ -1,11 +1,11 @@
-defmodule EtsTest do
+defmodule ETSTest do
   use ExUnit.Case
-  doctest Ets
+  doctest ETS
 
   describe "all" do
     test "all!/0 returns tables successfully" do
       all = :ets.all()
-      all2 = Ets.all!()
+      all2 = ETS.all!()
       assert length(all) == length(all2)
       assert Enum.count(all, &type_old(&1, :set)) == Enum.count(all2, &type_new(&1, :set))
 
