@@ -3,7 +3,8 @@
 ## Next
 
 * Rename `Ets` to `ETS`
-* Add `select/1` and `select/3` to `ETS.set`
+* Move `ETS.Set.KeyValueSet` to `ETS.KeyValueSet`
+* Add `select/1` and `select/3` to `ETS.set` - Thanks @zachdaniel
 * Handle and return :position_out_of_bounds error when calling `get_element`/`lookup_element` with a position greater than the size of one of the returned tuples
 * Add documentation for named table usage pattern.
 
@@ -28,7 +29,7 @@
 
 ## 0.6.0
 
-* Add `ETS.Set.KeyValueSet`
+* Add `ETS.KeyValueSet`
 
 ## 0.5.0
 

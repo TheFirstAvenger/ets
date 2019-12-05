@@ -14,7 +14,7 @@ ETS is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
 
 * `ETS.Set` - wraps `:set` and `:ordered_set`
 * `ETS.Bag` - wraps `:bag` and `:duplicate_bag`
-* `ETS.Set.KeyValueSet` - extension of `ETS.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
+* `ETS.KeyValueSet` - extension of `ETS.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
 * Most used functions from `:ets` replicated for all wrappers
 * Returns {:error, reason} tuples (or raises in ! versions) for:
   * `:table_not_found`
@@ -47,7 +47,7 @@ This will be accomplished by:
 * Providing `ETS.Set` and `ETS.Bag` modules with appropriate function signatures and error handling.
   * `ETS.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
 * Providing abstractions on top of the two base modules for specific usages
-  * `ETS.Set.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
+  * `ETS.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
 
 ## Changes
 
@@ -170,7 +170,7 @@ iex> Bag.to_list(bag)
 
 ### Abstractions
 
-* [X] `ETS.Set.KeyValueSet`
+* [X] `ETS.KeyValueSet`
   * [x] New
   * [x] Wrap Existing
   * [x] Put

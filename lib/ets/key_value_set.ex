@@ -1,4 +1,4 @@
-defmodule ETS.Set.KeyValueSet do
+defmodule ETS.KeyValueSet do
   @moduledoc """
   The Key Value Set is an extension of `ETS.Set` which abstracts the concept of tuple records
   away, replacing it with the standard concept of key/value. Behind the scenes, the set stores
@@ -40,13 +40,13 @@ defmodule ETS.Set.KeyValueSet do
 
   """
   use ETS.Utils
-  use ETS.Set.KeyValueSet.Macros
+  use ETS.KeyValueSet.Macros
 
   @behaviour Access
 
   alias ETS
+  alias ETS.KeyValueSet
   alias ETS.Set
-  alias ETS.Set.KeyValueSet
 
   @type t :: %__MODULE__{
           set: Set.t()
