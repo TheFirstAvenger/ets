@@ -38,13 +38,13 @@ defmodule Ets.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_unit_notifier, "~> 0.1", only: :test},
+      {:ex_unit_notifier, "~> 0.1.4", only: :test},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
-      {:earmark, "~> 1.2", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.19.1", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.10.3", only: :test},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false}
+      {:earmark, "~> 1.4.3", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.21.2", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.12.1", only: :test},
+      {:credo, "~> 1.2.0-rc1", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false}
     ]
   end
 
