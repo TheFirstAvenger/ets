@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 0.8.0
 
 * Rename `Ets` to `ETS`
 * Move `ETS.Set.KeyValueSet` to `ETS.KeyValueSet`
