@@ -450,6 +450,41 @@ defmodule SetTest do
                      Set.select_delete!(set, [])
                    end
     end
+
+    test "select!/3 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError, "Ets.Set.select!/3 returned {:error, :table_not_found}", fn ->
+        Set.select!(set, [{[:"$"], [], [:"$_"]}], 10)
+      end
+    end
+
+    test "select!/1 raises on error" do
+      set = Set.new!()
+      Set.put!(set, {1, "one"})
+      Set.put!(set, {2, "two"})
+
+      {_, continuation} = Set.select!(set, [{:_, [], [:"$_"]}], 1)
+
+      Set.delete(set)
+
+      assert_raise RuntimeError, "Ets.Set.select!/1 returned {:error, :table_not_found}", fn ->
+        Set.select!(continuation)
+      end
+    end
+
+    test "select!/3 continuation can be used with select!/1" do
+      set = Set.new!()
+      Set.put!(set, {1, "one"})
+      Set.put!(set, {2, "two"})
+
+      {[{2, "two"}], continuation} = Set.select!(set, [{:_, [], [:"$_"]}], 1)
+
+      assert {[{1, "one"}], continuation} = Set.select!(continuation)
+
+      assert :"$end_of_table" = Set.select!(continuation)
+    end
   end
 
   describe "Has Key" do
