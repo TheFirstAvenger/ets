@@ -6,14 +6,14 @@ defmodule ETS do
 
   See `ETS.Set` for information on creating and managing Sets, and `ETS.Bag` for information on creating and managing Bags.
 
-  See `ETS.Set.KeyValueSet` for an abstraction which provides standard key/value interaction with Sets.
+  See `ETS.KeyValueSet` for an abstraction which provides standard key/value interaction with Sets.
 
   ## What type of `ETS` table should I use?
 
   ## Set
 
   If you need your key column to be unique, then you should use a Set. If you just want a simple key/value store,
-  then use an `ETS.Set.KeyValueSet`, but if you want to store full tuple records, use an `ETS.Set`. If you want your
+  then use an `ETS.KeyValueSet`, but if you want to store full tuple records, use an `ETS.Set`. If you want your
   records ordered by key value, which adds some performance overhead on insertion, set `ordered: true` when creating the Set (defaults to false).
 
   ## Bag

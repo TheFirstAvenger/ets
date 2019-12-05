@@ -1,4 +1,4 @@
-defmodule ETS.Set.KeyValueSet.Macros do
+defmodule ETS.KeyValueSet.Macros do
   @moduledoc false
 
   use ETS.Utils
@@ -6,7 +6,7 @@ defmodule ETS.Set.KeyValueSet.Macros do
   defmacro __using__(_) do
     quote do
       require Logger
-      import ETS.Set.KeyValueSet.Macros
+      import ETS.KeyValueSet.Macros
     end
   end
 
@@ -27,8 +27,8 @@ defmodule ETS.Set.KeyValueSet.Macros do
       end
 
     quote do
+      alias ETS.KeyValueSet
       alias ETS.Set
-      alias ETS.Set.KeyValueSet
 
       @doc unquote(desc1)
       @spec unquote(fun_name)(KeyValueSet.t()) :: {:ok, unquote(ret)} | {:error, any()}
@@ -57,8 +57,8 @@ defmodule ETS.Set.KeyValueSet.Macros do
       end
 
     quote do
+      alias ETS.KeyValueSet
       alias ETS.Set
-      alias ETS.Set.KeyValueSet
 
       @doc unquote(desc1)
       @spec unquote(fun_name)(KeyValueSet.t(), unquote(second_param_type)) ::
