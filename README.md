@@ -195,7 +195,7 @@ iex> Bag.to_list(bag)
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.7.3"}
+    {:ets, "~> 0.8"}
   ]
 end
 ```
