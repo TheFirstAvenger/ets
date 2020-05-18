@@ -261,6 +261,34 @@ defmodule ETS.Set do
       do: unwrap_or_raise(put_new(set, record_or_records))
 
   @doc """
+  Returns record with specified key or an error if no record found.
+
+  ## Examples
+
+      iex> Set.new!()
+      iex> |> Set.put!({:a, :b, :c})
+      iex> |> Set.put!({:d, :e, :f})
+      iex> |> Set.fetch(:d)
+      {:ok, {:d, :e, :f}}
+
+      iex> Set.new!()
+      iex> |> Set.put!({:a, :b, :c})
+      iex> |> Set.put!({:d, :e, :f})
+      iex> |> Set.fetch(:g)
+      {:error, :key_not_found}
+
+  """
+  @spec fetch(Set.t(), any()) :: {:ok, tuple() | nil} | {:error, any()}
+  def fetch(%Set{table: table}, key) do
+    case Base.lookup(table, key) do
+      {:ok, []} -> {:error, :key_not_found}
+      {:ok, [x | []]} -> {:ok, x}
+      {:ok, _} -> {:error, :invalid_set}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
   Returns record with specified key or the provided default (nil if not specified) if no record found.
 
   ## Examples

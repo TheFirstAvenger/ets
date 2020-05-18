@@ -316,6 +316,19 @@ defmodule SetTest do
     end
   end
 
+  describe "Fetch" do
+    test "returns correct value" do
+      set = Set.new!()
+      Set.put(set, {:a, :b})
+      assert {:ok, {:a, :b}} = Set.fetch(set, :a)
+    end
+
+    test "returns error when value missing" do
+      set = Set.new!()
+      assert {:error, :key_not_found} == Set.fetch(set, :a)
+    end
+  end
+
   describe "Get" do
     test "returns correct value" do
       set = Set.new!()
