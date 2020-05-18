@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+* Add Set.fetch/2 - Thanks @christhekeele
+
 ## 0.8.0
 
 * Rename `Ets` to `ETS`
