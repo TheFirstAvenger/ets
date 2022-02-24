@@ -74,6 +74,6 @@ defmodule ETS do
   Same as all/1 but unwraps or raises on :error.
 
   """
-  @spec all!() :: [ETS.table_identifier()]
-  def all!(), do: unwrap_or_raise(all())
+  @spec all! :: [ETS.table_identifier()]
+  def all!, do: unwrap_or_raise(all())
 end
