@@ -61,7 +61,8 @@ defmodule ETS.MixProject do
 
   defp aliases do
     [
-      compile: ["compile --warnings-as-errors"]
+      compile: ["compile --warnings-as-errors"],
+      test: ["test --warnings-as-errors"]
     ]
   end
 end
