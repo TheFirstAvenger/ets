@@ -9,6 +9,7 @@ defmodule ETS.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
+      elixirc_paths: elixirc_paths(Mix.env()),
       docs: [main: "ETS", extras: ["README.md"]],
       package: package(),
       source_url: "https://github.com/TheFirstAvenger/ets",
@@ -35,16 +36,20 @@ defmodule ETS.MixProject do
     ]
   end
 
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_unit_notifier, "~> 0.1.4", only: :test},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
-      {:earmark, "~> 1.4.3", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.21.2", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.12.1", only: :test},
-      {:credo, "~> 1.2.0-rc1", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev, :test], runtime: false}
+      {:ex_unit_notifier, "~> 1.2", only: :test},
+      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
+      {:earmark, "~> 1.4", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.28", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.14.4", only: :test},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -61,7 +66,8 @@ defmodule ETS.MixProject do
 
   defp aliases do
     [
-      compile: ["compile --warnings-as-errors"]
+      compile: ["compile --warnings-as-errors"],
+      test: ["test --warnings-as-errors"]
     ]
   end
 end

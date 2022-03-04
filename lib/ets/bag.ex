@@ -578,4 +578,86 @@ defmodule ETS.Bag do
   """
   @spec wrap_existing!(ETS.table_identifier()) :: Bag.t()
   def wrap_existing!(table_identifier), do: unwrap_or_raise(wrap_existing(table_identifier))
+
+  @doc """
+  Transfers ownership of a Bag to another process.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> receiver_pid = spawn(fn -> Bag.accept() end)
+      iex> Bag.give_away(bag, receiver_pid)
+      {:ok, bag}
+
+      iex> bag = Bag.new!()
+      iex> dead_pid = ETS.TestUtils.dead_pid()
+      iex> Bag.give_away(bag, dead_pid)
+      {:error, :recipient_not_alive}
+
+  """
+  @spec give_away(Bag.t(), pid(), any()) :: {:ok, Bag.t()} | {:error, any()}
+  def give_away(%Bag{table: table} = bag, pid, gift \\ []),
+    do: Base.give_away(table, pid, gift, bag)
+
+  @doc """
+  Same as `give_away/3` but unwraps or raises on error.
+  """
+  @spec give_away!(Bag.t(), pid(), any()) :: Bag.t()
+  def give_away!(%Bag{} = bag, pid, gift \\ []),
+    do: unwrap_or_raise(give_away(bag, pid, gift))
+
+  @doc """
+  Waits to accept ownership of a table after it is given away.  Successful receipt will
+  return `{:ok, %{bag: bag, from: from, gift: gift}}` where `from` is the pid of the previous
+  owner, and `gift` is any additional metadata sent with the table.
+
+  A timeout may be given in milliseconds, which will return `{:error, :timeout}` if reached.
+
+  See `give_away/3` for more information.
+  """
+  @spec accept() :: {:ok, Bag.t(), pid(), any()} | {:error, any()}
+  def accept(timeout \\ :infinity) do
+    with {:ok, table, from, gift} <- Base.accept(timeout),
+         {:ok, bag} <- Bag.wrap_existing(table) do
+      {:ok, %{bag: bag, from: from, gift: gift}}
+    end
+  end
+
+  @doc """
+  For processes which may receive ownership of a Bag unexpectedly - either via `give_away/3` or
+  by being named the Bag's heir (see `new/1`) - the module should include at least one `accept`
+  clause.  For example, if we want a server to inherit Bags after their previous owner dies:
+
+  ```
+  defmodule Receiver do
+    use GenServer
+    alias ETS.Bag
+    require ETS.Bag
+
+    ...
+
+    Bag.accept :owner_crashed, bag, _from, state do
+      new_state = Map.update!(state, :crashed_bags, &[bag | &1])
+      {:noreply, new_state}
+    end
+  ```
+
+  The first argument is a unique identifier which should match either the "heir_data"
+  in `new/1`, or the "gift" in `give_away/3`.
+  The other arguments declare the variables which may be used in the `do` block:
+  the received Bag, the pid of the previous owner, and the current state of the process.
+
+  The return value should be in the form {:noreply, new_state}, or one of the similar
+  returns expected by `handle_info`/`handle_cast`.
+  """
+  defmacro accept(id, table, from, state, do: contents) do
+    quote do
+      require Base
+
+      Base.accept unquote(id), unquote(table), unquote(from), unquote(state) do
+        var!(unquote(table)) = Bag.wrap_existing!(unquote(table))
+        unquote(contents)
+      end
+    end
+  end
 end

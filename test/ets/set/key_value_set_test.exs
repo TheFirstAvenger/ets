@@ -2,6 +2,7 @@ defmodule KeyValueSetTest do
   use ExUnit.Case
   alias ETS.KeyValueSet
   alias ETS.Set
+  alias ETS.TestUtils
   doctest ETS.KeyValueSet
 
   describe "New" do
@@ -419,6 +420,71 @@ defmodule KeyValueSetTest do
                    fn ->
                      KeyValueSet.delete_all!(set)
                    end
+    end
+  end
+
+  describe "Give Away give_away/3" do
+    test "success" do
+      recipient_pid = self()
+
+      spawn(fn ->
+        bag = KeyValueSet.new!()
+        KeyValueSet.give_away!(bag, recipient_pid)
+      end)
+
+      assert {:ok, %{kv_set: %KeyValueSet{}, gift: []}} = KeyValueSet.accept()
+    end
+
+    test "cannot give to process which already owns table" do
+      assert_raise RuntimeError,
+                   "ETS.KeyValueSet.give_away!/3 returned {:error, :recipient_already_owns_table}",
+                   fn ->
+                     kv_set = KeyValueSet.new!()
+                     KeyValueSet.give_away!(kv_set, self())
+                   end
+    end
+
+    test "cannot give to process which is not alive" do
+      assert_raise RuntimeError,
+                   "ETS.KeyValueSet.give_away!/3 returned {:error, :recipient_not_alive}",
+                   fn ->
+                     kv_set = KeyValueSet.new!()
+                     KeyValueSet.give_away!(kv_set, TestUtils.dead_pid())
+                   end
+    end
+
+    test "cannot give a table belonging to another process" do
+      sender_pid = self()
+
+      _owner_pid =
+        spawn_link(fn ->
+          kv_set = KeyValueSet.new!()
+          send(sender_pid, kv_set)
+          Process.sleep(:infinity)
+        end)
+
+      assert_receive kv_set
+
+      recipient_pid = spawn_link(fn -> Process.sleep(:infinity) end)
+
+      assert_raise RuntimeError,
+                   "ETS.KeyValueSet.give_away!/3 returned {:error, :sender_not_table_owner}",
+                   fn ->
+                     KeyValueSet.give_away!(kv_set, recipient_pid)
+                   end
+    end
+  end
+
+  describe "Macro" do
+    test "accept/5 success" do
+      {:ok, recipient_pid} = start_supervised(ETS.TestServer)
+
+      %KeyValueSet{set: %Set{table: table}} = kv_set = KeyValueSet.new!()
+
+      KeyValueSet.give_away!(kv_set, recipient_pid, :kv_test)
+
+      assert_receive {:thank_you, %KeyValueSet{set: %Set{table: ^table}}}
+      assert_receive :state_saved_ok
     end
   end
 

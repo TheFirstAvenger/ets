@@ -44,9 +44,11 @@ defmodule ETS.KeyValueSet do
 
   @behaviour Access
 
-  alias ETS
-  alias ETS.KeyValueSet
-  alias ETS.Set
+  alias ETS.{
+    Base,
+    KeyValueSet,
+    Set
+  }
 
   @type t :: %__MODULE__{
           set: Set.t()
@@ -263,6 +265,50 @@ defmodule ETS.KeyValueSet do
   def info(key_value_set, force_update \\ false)
   def info!(key_value_set, force_update \\ false)
 
+  @doc """
+  Transfers ownership of a KeyValueSet to another process.
+
+  ## Examples
+
+      iex> kv_set = KeyValueSet.new!()
+      iex> receiver_pid = spawn(fn -> KeyValueSet.accept() end)
+      iex> KeyValueSet.give_away(kv_set, receiver_pid)
+      {:ok, kv_set}
+
+      iex> kv_set = KeyValueSet.new!()
+      iex> dead_pid = ETS.TestUtils.dead_pid()
+      iex> KeyValueSet.give_away(kv_set, dead_pid)
+      {:error, :recipient_not_alive}
+
+  """
+  @spec give_away(KeyValueSet.t(), pid(), any()) :: {:ok, KeyValueSet.t()} | {:error, any()}
+  def give_away(%KeyValueSet{set: set}, pid, gift \\ []) do
+    with {:ok, set} <- Set.give_away(set, pid, gift),
+         do: {:ok, %KeyValueSet{set: set}}
+  end
+
+  @doc """
+  Same as `give_away/3` but unwraps or raises on error.
+  """
+  @spec give_away!(KeyValueSet.t(), pid(), any()) :: KeyValueSet.t()
+  def give_away!(%KeyValueSet{} = kv_set, pid, gift \\ []),
+    do: unwrap_or_raise(give_away(kv_set, pid, gift))
+
+  @doc """
+  Waits to accept ownership of a table after it is given away.  Successful receipt will
+  return `{:ok, %{kv_set: kv_set, from: from, gift: gift}}` where `from` is the pid of
+  the previous owner, and `gift` is any additional metadata sent with the table.
+
+  A timeout may be given in milliseconds, which will return `{:error, :timeout}` if reached.
+
+  See `give_away/3` for more information.
+  """
+  @spec accept() :: {:ok, KeyValueSet.t(), pid(), any()} | {:error, any()}
+  def accept(timeout \\ :infinity) do
+    with {:ok, %{set: set, from: from, gift: gift}} <- Set.accept(timeout),
+         do: {:ok, %{kv_set: %KeyValueSet{set: set}, from: from, gift: gift}}
+  end
+
   delegate_to_set :info, 2, ret: keyword(), second_param_type: boolean() do
     "Returns info on set"
   end
@@ -314,6 +360,45 @@ defmodule ETS.KeyValueSet do
     case get(set, key) do
       {:ok, value} -> {value, delete!(set, key)}
       _ -> {nil, set}
+    end
+  end
+
+  @doc """
+  For processes which may receive ownership of a KeyValueSet unexpectedly - either via
+  `give_away/3` or by being named the KeyValueSet's heir (see `new/1`) - the module should
+  include at least one `accept` clause.  For example, if we want a server to inherit
+  KeyValueSets after their previous owner dies:
+
+  ```
+  defmodule Receiver do
+    use GenServer
+    alias ETS.KeyValueSet
+    require ETS.KeyValueSet
+
+    ...
+
+    KeyValueSet.accept :owner_crashed, kv_set, _from, state do
+      new_state = Map.update!(state, :crashed_sets, &[kv_set | &1])
+      {:noreply, new_state}
+    end
+  ```
+
+  The first argument is a unique identifier which should match either the "heir_data"
+  in `new/1`, or the "gift" in `give_away/3`.
+  The other arguments declare the variables which may be used in the `do` block:
+  the received KeyValueSet, the pid of the previous owner, and the current state of the process.
+
+  The return value should be in the form {:noreply, new_state}, or one of the similar
+  returns expected by `handle_info`/`handle_cast`.
+  """
+  defmacro accept(id, table, from, state, do: contents) do
+    quote do
+      require Base
+
+      Base.accept unquote(id), unquote(table), unquote(from), unquote(state) do
+        var!(unquote(table)) = KeyValueSet.wrap_existing!(unquote(table))
+        unquote(contents)
+      end
     end
   end
 end
