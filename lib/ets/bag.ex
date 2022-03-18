@@ -353,14 +353,16 @@ defmodule ETS.Bag do
   """
   @spec match(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
-  def match(%Bag{table: table}, pattern, limit), do: Base.match(table, pattern, limit)
+  def match(%Bag{table: table}, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match(table, pattern, limit)
 
   @doc """
   Same as `match/3` but unwraps or raises on error.
   """
   @spec match!(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {[tuple()], any() | :end_of_table}
-  def match!(%Bag{} = bag, pattern, limit), do: unwrap_or_raise(match(bag, pattern, limit))
+  def match!(%Bag{} = bag, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match(bag, pattern, limit))
 
   @doc """
   Matches next bag of records from a match/3 or match/1 continuation.
@@ -387,6 +389,111 @@ defmodule ETS.Bag do
   """
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
+
+  @doc """
+  Deletes all records that match the given pattern.
+
+  Always returns `:ok`, regardless of whether anything was deleted or not.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:a, :i, :j, :k}])
+      iex> Bag.match_delete(bag, {:_, :b, :_, :_})
+      {:ok, bag}
+      iex> Bag.to_list!(bag)
+      [{:a, :i, :j, :k}]
+
+  """
+  @spec match_delete(Bag.t(), ETS.match_pattern()) :: {:ok, Bag.t()} | {:error, any()}
+  def match_delete(%Bag{table: table} = bag, pattern)
+      when is_atom(pattern) or is_tuple(pattern) do
+    with :ok <- Base.match_delete(table, pattern) do
+      {:ok, bag}
+    end
+  end
+
+  @doc """
+  Same as `match_delete/2` but unwraps or raises on error.
+  """
+  @spec match_delete!(Bag.t(), ETS.match_pattern()) :: Bag.t()
+  def match_delete!(%Bag{} = bag, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_delete(bag, pattern))
+
+  @doc """
+  Returns full records that match the specified pattern.
+
+  For more information on the match pattern, see the [erlang documentation](http://erlang.org/doc/man/ets.html#match-2)
+
+  ## Examples
+
+      iex> Bag.new!()
+      iex> |> Bag.add!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Bag.match_object({:"$1", :b, :"$2", :_})
+      {:ok, [{:h, :b, :i, :j}, {:a, :b, :c, :d}]}
+
+  """
+  @spec match_object(Bag.t(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  def match_object(%Bag{table: table}, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match_object(table, pattern)
+
+  @doc """
+  Same as `match_object/2` but unwraps or raises on error.
+  """
+  @spec match_object!(Bag.t(), ETS.match_pattern()) :: [tuple()]
+  def match_object!(%Bag{} = bag, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_object(bag, pattern))
+
+  @doc """
+  Same as `match/2` but limits number of results to the specified limit.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> {:ok, {results, _continuation}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      iex> results
+      [{:e, :b, :f, :g}, {:a, :b, :c, :d}]
+
+  """
+  @spec match_object(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(%Bag{table: table}, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match_object(table, pattern, limit)
+
+  @doc """
+  Same as `match_object/3` but unwraps or raises on error.
+  """
+  @spec match_object!(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {[tuple()], any() | :end_of_table}
+  def match_object!(%Bag{} = bag, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_object(bag, pattern, limit))
+
+  @doc """
+  Matches next bag of records from a match/3 or match/1 continuation.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> {:ok, {results, continuation}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      iex> results
+      [{:e, :b, :f, :g}, {:a, :b, :c, :d}]
+      iex> {:ok, {records2, continuation2}} = Bag.match_object(continuation)
+      iex> records2
+      [{:h, :b, :i, :j}]
+      iex> continuation2
+      :end_of_table
+
+  """
+  @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(continuation), do: Base.match_object(continuation)
+
+  @doc """
+  Same as `match_object/1` but unwraps or raises on error.
+  """
+  @spec match_object!(any()) :: {[tuple()], any() | :end_of_table}
+  def match_object!(continuation), do: unwrap_or_raise(match_object(continuation))
 
   @doc """
   Returns records in the specified Bag that match the specified match specification.

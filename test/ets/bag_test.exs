@@ -234,6 +234,47 @@ defmodule BagTest do
                      Bag.match!(:not_a_continuation)
                    end
     end
+
+    test "match_delete!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_delete!(bag, {:a})
+                   end
+    end
+
+    test "match_object!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a})
+                   end
+    end
+
+    test "match_object!/3 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a}, 1)
+                   end
+    end
+
+    test "match_object!/1 raises on error" do
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/1 returned {:error, :invalid_continuation}",
+                   fn ->
+                     Bag.match_object!(:not_a_continuation)
+                   end
+    end
   end
 
   describe "Select" do

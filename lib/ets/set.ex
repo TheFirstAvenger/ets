@@ -410,6 +410,111 @@ defmodule ETS.Set do
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
 
+  @doc """
+  Deletes all records that match the specified pattern.
+
+  Always returns `:ok`, regardless of whether anything was deleted or not.
+
+  ## Examples
+
+      iex> set = Set.new!(ordered: true)
+      iex> Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :i, :j, :k}])
+      iex> Set.match_delete(set, {:_, :b, :_, :_})
+      {:ok, set}
+      iex> Set.to_list!(set)
+      [{:h, :i, :j, :k}]
+
+  """
+  @spec match_delete(Set.t(), ETS.match_pattern()) :: {:ok, Set.t()} | {:error, any()}
+  def match_delete(%Set{table: table} = set, pattern)
+      when is_atom(pattern) or is_tuple(pattern) do
+    with :ok <- Base.match_delete(table, pattern) do
+      {:ok, set}
+    end
+  end
+
+  @doc """
+  Same as `match_delete/2` but unwraps or raises on error.
+  """
+  @spec match_delete!(Set.t(), ETS.match_pattern()) :: Set.t()
+  def match_delete!(%Set{} = set, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_delete(set, pattern))
+
+  @doc """
+  Returns records in the specified Set that match the specified pattern.
+
+  For more information on the match pattern, see the [erlang documentation](http://erlang.org/doc/man/ets.html#match-2)
+
+  ## Examples
+
+      iex> Set.new!(ordered: true)
+      iex> |> Set.put!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Set.match_object({:"$1", :b, :"$2", :_})
+      {:ok, [{:a, :b, :c, :d}, {:h, :b, :i, :j}]}
+
+  """
+  @spec match_object(Set.t(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  def match_object(%Set{table: table}, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match_object(table, pattern)
+
+  @doc """
+  Same as `match_object/2` but unwraps or raises on error.
+  """
+  @spec match_object!(Set.t(), ETS.match_pattern()) :: [tuple()]
+  def match_object!(%Set{} = set, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_object(set, pattern))
+
+  @doc """
+  Same as `match_object/2` but limits number of results to the specified limit.
+
+  ## Examples
+
+      iex> set = Set.new!(ordered: true)
+      iex> Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> {:ok, {results, _continuation}} = Set.match_object(set, {:"$1", :b, :"$2", :_}, 2)
+      iex> results
+      [{:a, :b, :c, :d}, {:e, :b, :f, :g}]
+
+  """
+  @spec match_object(Set.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(%Set{table: table}, pattern, limit),
+    do: Base.match_object(table, pattern, limit)
+
+  @doc """
+  Same as `match_object/3` but unwraps or raises on error.
+  """
+  @spec match_object!(Set.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {[tuple()], any() | :end_of_table}
+  def match_object!(%Set{} = set, pattern, limit),
+    do: unwrap_or_raise(match_object(set, pattern, limit))
+
+  @doc """
+  Matches next set of records from a match_object/3 or match_object/1 continuation.
+
+  ## Examples
+
+      iex> set = Set.new!(ordered: true)
+      iex> Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> {:ok, {results, continuation}} = Set.match_object(set, {:"$1", :b, :"$2", :_}, 2)
+      iex> results
+      [{:a, :b, :c, :d}, {:e, :b, :f, :g}]
+      iex> {:ok, {records2, continuation2}} = Set.match_object(continuation)
+      iex> records2
+      [{:h, :b, :i, :j}]
+      iex> continuation2
+      :end_of_table
+
+  """
+  @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(continuation), do: Base.match_object(continuation)
+
+  @doc """
+  Same as `match_object/1` but unwraps or raises on error.
+  """
+  @spec match_object!(any()) :: {[tuple()], any() | :end_of_table}
+  def match_object!(continuation), do: unwrap_or_raise(match_object(continuation))
+
   @spec select(ETS.continuation()) ::
           {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(continuation), do: Base.select(continuation)
