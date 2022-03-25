@@ -432,4 +432,21 @@ defmodule ETS.Base do
       end
     end
   end
+
+  @doc false
+  @spec update_element(ETS.table_identifier(), any(), tuple() | [tuple()]) ::
+          boolean() | {:error, any()}
+  def update_element(table, key, element_spec) do
+    catch_error do
+      catch_key_update table, element_spec do
+        catch_positions_out_of_bounds table, key, element_spec do
+          catch_write_protected table do
+            catch_table_not_found table do
+              :ets.update_element(table, key, element_spec)
+            end
+          end
+        end
+      end
+    end
+  end
 end

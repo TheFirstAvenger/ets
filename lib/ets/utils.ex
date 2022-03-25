@@ -141,6 +141,43 @@ defmodule ETS.Utils do
     end
   end
 
+  defmacro catch_positions_out_of_bounds(table, key, element_spec, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          [result] = :ets.lookup(unquote(table), unquote(key))
+          size = tuple_size(result)
+          specs = List.wrap(unquote(element_spec))
+
+          if Enum.any?(specs, fn {pos, _} -> pos < 1 or pos > size end) do
+            {:error, :position_out_of_bounds}
+          else
+            reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
+  defmacro catch_key_update(table, element_spec, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          info = :ets.info(unquote(table))
+          specs = List.wrap(unquote(element_spec))
+
+          if Enum.any?(specs, fn {pos, _} -> pos == info[:keypos] end) do
+            {:error, :cannot_update_key}
+          else
+            reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
   defmacro catch_invalid_select_spec(spec, do: do_block) do
     quote do
       try do
