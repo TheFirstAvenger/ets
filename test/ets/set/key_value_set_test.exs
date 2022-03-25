@@ -1,8 +1,10 @@
 defmodule KeyValueSetTest do
   use ExUnit.Case
+
   alias ETS.KeyValueSet
   alias ETS.Set
   alias ETS.TestUtils
+
   doctest ETS.KeyValueSet
 
   describe "New" do

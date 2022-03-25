@@ -1,7 +1,9 @@
 defmodule BagTest do
   use ExUnit.Case
+
   alias ETS.Bag
   alias ETS.TestUtils
+
   doctest ETS.Bag
 
   describe "Named Tables Start" do

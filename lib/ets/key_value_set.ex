@@ -44,11 +44,9 @@ defmodule ETS.KeyValueSet do
 
   @behaviour Access
 
-  alias ETS.{
-    Base,
-    KeyValueSet,
-    Set
-  }
+  alias ETS.Base
+  alias ETS.KeyValueSet
+  alias ETS.Set
 
   @type t :: %__MODULE__{
           set: Set.t()

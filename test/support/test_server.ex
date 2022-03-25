@@ -3,8 +3,14 @@ defmodule ETS.TestServer do
   A test process for receiving ETS table ownership messages.
   """
   use GenServer
-  alias ETS.{Bag, KeyValueSet, Set}
-  require ETS.{Bag, KeyValueSet, Set}
+
+  alias ETS.Bag
+  alias ETS.KeyValueSet
+  alias ETS.Set
+
+  require ETS.Bag
+  require ETS.KeyValueSet
+  require ETS.Set
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :init_state)

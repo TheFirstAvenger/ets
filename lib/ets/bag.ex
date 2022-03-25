@@ -78,10 +78,8 @@ defmodule ETS.Bag do
   """
   use ETS.Utils
 
-  alias ETS.{
-    Bag,
-    Base
-  }
+  alias ETS.Bag
+  alias ETS.Base
 
   @type t :: %__MODULE__{
           info: keyword(),

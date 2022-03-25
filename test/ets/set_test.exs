@@ -1,7 +1,9 @@
 defmodule SetTest do
   use ExUnit.Case
+
   alias ETS.Set
   alias ETS.TestUtils
+
   doctest ETS.Set
 
   describe "New" do

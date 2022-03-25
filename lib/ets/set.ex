@@ -78,10 +78,8 @@ defmodule ETS.Set do
   """
   use ETS.Utils
 
-  alias ETS.{
-    Base,
-    Set
-  }
+  alias ETS.Base
+  alias ETS.Set
 
   @type t :: %__MODULE__{
           info: keyword(),
