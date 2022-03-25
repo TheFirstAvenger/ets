@@ -25,9 +25,7 @@ defmodule ETS.Utils do
       rescue
         e in ArgumentError ->
           Logger.error(
-            "Unknown ArgumentError in #{inspect(unquote(mod))}.#{unquote(func)}/#{unquote(arity)}: #{
-              inspect(e)
-            }"
+            "Unknown ArgumentError in #{inspect(unquote(mod))}.#{unquote(func)}/#{unquote(arity)}: #{inspect(e)}"
           )
 
           {:error, :unknown_error}
@@ -259,9 +257,7 @@ defmodule ETS.Utils do
           value
 
         {:error, reason} ->
-          raise "#{inspect(unquote(mod))}.#{unquote(func)}/#{unquote(arity)} returned {:error, #{
-                  inspect(reason)
-                }}"
+          raise "#{inspect(unquote(mod))}.#{unquote(func)}/#{unquote(arity)} returned {:error, #{inspect(reason)}}"
       end
     end
   end
