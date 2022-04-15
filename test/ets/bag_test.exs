@@ -344,6 +344,10 @@ defmodule BagTest do
       assert {:ok, %{bag: %Bag{}, gift: []}} = Bag.accept()
     end
 
+    test "timeout" do
+      assert {:error, :timeout} = Bag.accept(10)
+    end
+
     test "cannot give to process which already owns table" do
       assert_raise RuntimeError,
                    "ETS.Bag.give_away!/3 returned {:error, :recipient_already_owns_table}",
@@ -393,7 +397,6 @@ defmodule BagTest do
       Bag.give_away!(bag, recipient_pid, :bag_test)
 
       assert_receive {:thank_you, %Bag{table: ^table}}
-      assert_receive :state_saved_ok
     end
   end
 

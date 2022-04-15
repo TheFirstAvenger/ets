@@ -437,6 +437,10 @@ defmodule KeyValueSetTest do
       assert {:ok, %{kv_set: %KeyValueSet{}, gift: []}} = KeyValueSet.accept()
     end
 
+    test "timeout" do
+      assert {:error, :timeout} = KeyValueSet.accept(10)
+    end
+
     test "cannot give to process which already owns table" do
       assert_raise RuntimeError,
                    "ETS.KeyValueSet.give_away!/3 returned {:error, :recipient_already_owns_table}",
@@ -486,7 +490,6 @@ defmodule KeyValueSetTest do
       KeyValueSet.give_away!(kv_set, recipient_pid, :kv_test)
 
       assert_receive {:thank_you, %KeyValueSet{set: %Set{table: ^table}}}
-      assert_receive :state_saved_ok
     end
   end
 

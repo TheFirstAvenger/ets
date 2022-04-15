@@ -22,32 +22,24 @@ defmodule ETS.TestServer do
 
   Set.accept :set_test, set, from, :init_state do
     send(from, {:thank_you, set})
-    send(self(), {:check_state, Set, from})
-    {:noreply, set}
-  end
-
-  Set.accept :invalid, set, _from, :init_state do
+    send(self(), {:check_state, Set})
     {:noreply, set}
   end
 
   KeyValueSet.accept :kv_test, kv_set, from, :init_state do
     send(from, {:thank_you, kv_set})
-    send(self(), {:check_state, KeyValueSet, from})
+    send(self(), {:check_state, KeyValueSet})
     {:noreply, kv_set}
   end
 
   Bag.accept :bag_test, bag, from, :init_state do
     send(from, {:thank_you, bag})
-    send(self(), {:check_state, Bag, from})
+    send(self(), {:check_state, Bag})
     {:noreply, bag}
   end
 
-  def handle_info({:check_state, type, test_process}, state) do
-    case state do
-      %^type{} -> send(test_process, :state_saved_ok)
-      _ -> send(test_process, :error)
-    end
-
+  def handle_info({:check_state, type}, state) do
+    %^type{} = state
     {:noreply, state}
   end
 end

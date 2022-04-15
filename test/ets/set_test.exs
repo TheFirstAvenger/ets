@@ -618,6 +618,10 @@ defmodule SetTest do
       assert {:ok, %{set: %Set{}, gift: []}} = Set.accept()
     end
 
+    test "timeout" do
+      assert {:error, :timeout} = Set.accept(10)
+    end
+
     test "cannot give to process which already owns table" do
       assert_raise RuntimeError,
                    "ETS.Set.give_away!/3 returned {:error, :recipient_already_owns_table}",
@@ -667,7 +671,6 @@ defmodule SetTest do
       Set.give_away!(set, recipient_pid, :set_test)
 
       assert_receive {:thank_you, %Set{table: ^table}}
-      assert_receive :state_saved_ok
     end
   end
 
