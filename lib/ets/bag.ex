@@ -470,20 +470,19 @@ defmodule ETS.Bag do
     do: unwrap_or_raise(match_object(bag, pattern, limit))
 
   @doc """
-  Matches next bag of records from a match/3 or match/1 continuation.
+  Matches next records from a match/3 or match/1 continuation.
 
   ## Examples
 
       iex> bag = Bag.new!()
-      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
-      iex> {:ok, {results, continuation}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      iex> Bag.add!(bag, [{:a, :b, :c}, {:a, :b, :d}, {:a, :b, :e}, {:f, :b, :g}])
+      iex> {:ok, {results, continuation}} = Bag.match_object(bag, {:"$1", :b, :_}, 2)
       iex> results
-      [{:e, :b, :f, :g}, {:a, :b, :c, :d}]
-      iex> {:ok, {records2, continuation2}} = Bag.match_object(continuation)
-      iex> records2
-      [{:h, :b, :i, :j}]
-      iex> continuation2
-      :end_of_table
+      [{:a, :b, :d}, {:a, :b, :e}]
+      iex> {:ok, {results2, continuation2}} = Bag.match_object(continuation)
+      iex> results2
+      [{:f, :b, :g}, {:a, :b, :c}]
+      iex> {:ok, {[], :end_of_table}} = Bag.match_object(continuation2)
 
   """
   @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}

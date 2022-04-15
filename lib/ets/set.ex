@@ -490,20 +490,19 @@ defmodule ETS.Set do
     do: unwrap_or_raise(match_object(set, pattern, limit))
 
   @doc """
-  Matches next set of records from a match_object/3 or match_object/1 continuation.
+  Matches next records from a match_object/3 or match_object/1 continuation.
 
   ## Examples
 
       iex> set = Set.new!(ordered: true)
-      iex> Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
-      iex> {:ok, {results, continuation}} = Set.match_object(set, {:"$1", :b, :"$2", :_}, 2)
+      iex> Set.put!(set, [{:a, :b, :c}, {:d, :b, :e}, {:f, :b, :g}, {:h, :b, :i}])
+      iex> {:ok, {results, continuation}} = Set.match_object(set, {:"$1", :b, :_}, 2)
       iex> results
-      [{:a, :b, :c, :d}, {:e, :b, :f, :g}]
-      iex> {:ok, {records2, continuation2}} = Set.match_object(continuation)
-      iex> records2
-      [{:h, :b, :i, :j}]
-      iex> continuation2
-      :end_of_table
+      [{:a, :b, :c}, {:d, :b, :e}]
+      iex> {:ok, {results2, continuation2}} = Set.match_object(continuation)
+      iex> results2
+      [{:f, :b, :g}, {:h, :b, :i}]
+      iex> {:ok, {[], :end_of_table}} = Set.match_object(continuation2)
 
   """
   @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}

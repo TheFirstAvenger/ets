@@ -257,6 +257,16 @@ defmodule BagTest do
                    end
     end
 
+    test "match_object/3 reaches end of table" do
+      bag = Bag.new!()
+      Bag.add!(bag, {:w, :x, :y, :z})
+      assert {:ok, {[], :end_of_table}} = Bag.match_object(bag, {:_, :b, :_, :_}, 1)
+
+      Bag.add!(bag, {:a, :b, :c, :d})
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      assert results == [{:a, :b, :c, :d}]
+    end
+
     test "match_object!/3 raises on error" do
       bag = Bag.new!()
       Bag.delete(bag)
@@ -266,6 +276,15 @@ defmodule BagTest do
                    fn ->
                      Bag.match_object!(bag, {:a}, 1)
                    end
+    end
+
+    test "match_object/1 finds less matches than the limit" do
+      bag = Bag.new!()
+      Bag.add!(bag, [{:a, :b, :c, :d}, {:a, :b, :e, :f}, {:g, :b, :h, :i}])
+      {:ok, {_result, continuation}} = Bag.match_object(bag, {:_, :b, :_, :_}, 2)
+
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(continuation)
+      assert results == [{:g, :b, :h, :i}]
     end
 
     test "match_object!/1 raises on error" do
