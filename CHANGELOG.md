@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+* Add give_away/3, accept/1, and accept/6
+
 ## 0.8.1
 
 * Add Set.fetch/2 - Thanks @christhekeele
