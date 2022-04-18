@@ -503,7 +503,7 @@ defmodule ETS.Base do
         catch_positions_out_of_bounds table, key, element_spec do
           catch_write_protected table do
             catch_table_not_found table do
-              :ets.update_element(table, key, element_spec
+              :ets.update_element(table, key, element_spec)
             end
           end
         end
