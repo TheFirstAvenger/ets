@@ -243,6 +243,67 @@ defmodule ETS.Base do
     end
   end
 
+  @doc false
+  @spec match_delete(ETS.table_identifier(), ETS.match_pattern()) :: :ok | {:error, any()}
+  def match_delete(table, pattern) do
+    catch_error do
+      catch_read_protected table do
+        catch_table_not_found table do
+          :ets.match_delete(table, pattern)
+          :ok
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec match_object(ETS.table_identifier(), ETS.match_pattern()) ::
+          {:ok, [tuple()]} | {:error, any()}
+  def match_object(table, pattern) do
+    catch_error do
+      catch_read_protected table do
+        catch_table_not_found table do
+          matches = :ets.match_object(table, pattern)
+          {:ok, matches}
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec match_object(ETS.table_identifier(), ETS.match_pattern(), non_neg_integer()) ::
+          {:ok, {[tuple()], any()}} | {:error, any()}
+  def match_object(table, pattern, limit) do
+    catch_error do
+      catch_read_protected table do
+        catch_table_not_found table do
+          case :ets.match_object(table, pattern, limit) do
+            {x, :"$end_of_table"} -> {:ok, {x, :end_of_table}}
+            {records, continuation} -> {:ok, {records, continuation}}
+            :"$end_of_table" -> {:ok, {[], :end_of_table}}
+          end
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(continuation) do
+    catch_error do
+      try do
+        case :ets.match_object(continuation) do
+          {x, :"$end_of_table"} -> {:ok, {x, :end_of_table}}
+          {records, continuation} -> {:ok, {records, continuation}}
+          :"$end_of_table" -> {:ok, {[], :end_of_table}}
+        end
+      rescue
+        ArgumentError ->
+          {:error, :invalid_continuation}
+      end
+    end
+  end
+
   @spec select(ETS.continuation()) ::
           {:ok, {[tuple()], ETS.continuation()} | ETS.end_of_table()} | {:error, any()}
   def select(continuation) do
@@ -442,10 +503,51 @@ defmodule ETS.Base do
         catch_positions_out_of_bounds table, key, element_spec do
           catch_write_protected table do
             catch_table_not_found table do
-              :ets.update_element(table, key, element_spec)
+              :ets.update_element(table, key, element_spec
             end
           end
         end
+      end
+    end
+  end
+
+  @spec give_away(ETS.table_identifier(), pid(), any(), any()) :: {:ok, any()} | {:error, any()}
+  def give_away(table, pid, gift, return) do
+    catch_error do
+      catch_sender_not_table_owner table do
+        catch_recipient_not_alive pid do
+          catch_recipient_already_owns_table table, pid do
+            catch_table_not_found table do
+              :ets.give_away(table, pid, gift)
+              {:ok, return}
+            end
+          end
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec accept(integer() | :infinity) ::
+          {:ok, ETS.table_identifier(), pid(), any()} | {:error, :timeout}
+  def accept(timeout) do
+    receive do
+      {:"ETS-TRANSFER", table, from, gift} ->
+        {:ok, table, from, gift}
+    after
+      timeout ->
+        {:error, :timeout}
+    end
+  end
+
+  defmacro accept(id, table, from, state, do: contents) do
+    quote do
+      def handle_info(
+            {:"ETS-TRANSFER", unquote(table), unquote(from), unquote(id)},
+            unquote(state)
+          ) do
+        var!(unquote(table)) = unquote(table)
+        unquote(contents)
       end
     end
   end

@@ -78,10 +78,8 @@ defmodule ETS.Bag do
   """
   use ETS.Utils
 
-  alias ETS.{
-    Bag,
-    Base
-  }
+  alias ETS.Bag
+  alias ETS.Base
 
   @type t :: %__MODULE__{
           info: keyword(),
@@ -353,14 +351,16 @@ defmodule ETS.Bag do
   """
   @spec match(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
-  def match(%Bag{table: table}, pattern, limit), do: Base.match(table, pattern, limit)
+  def match(%Bag{table: table}, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match(table, pattern, limit)
 
   @doc """
   Same as `match/3` but unwraps or raises on error.
   """
   @spec match!(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
           {[tuple()], any() | :end_of_table}
-  def match!(%Bag{} = bag, pattern, limit), do: unwrap_or_raise(match(bag, pattern, limit))
+  def match!(%Bag{} = bag, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match(bag, pattern, limit))
 
   @doc """
   Matches next bag of records from a match/3 or match/1 continuation.
@@ -387,6 +387,110 @@ defmodule ETS.Bag do
   """
   @spec match!(any()) :: {[tuple()], any() | :end_of_table}
   def match!(continuation), do: unwrap_or_raise(match(continuation))
+
+  @doc """
+  Deletes all records that match the given pattern.
+
+  Always returns `:ok`, regardless of whether anything was deleted or not.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:a, :i, :j, :k}])
+      iex> Bag.match_delete(bag, {:_, :b, :_, :_})
+      {:ok, bag}
+      iex> Bag.to_list!(bag)
+      [{:a, :i, :j, :k}]
+
+  """
+  @spec match_delete(Bag.t(), ETS.match_pattern()) :: {:ok, Bag.t()} | {:error, any()}
+  def match_delete(%Bag{table: table} = bag, pattern)
+      when is_atom(pattern) or is_tuple(pattern) do
+    with :ok <- Base.match_delete(table, pattern) do
+      {:ok, bag}
+    end
+  end
+
+  @doc """
+  Same as `match_delete/2` but unwraps or raises on error.
+  """
+  @spec match_delete!(Bag.t(), ETS.match_pattern()) :: Bag.t()
+  def match_delete!(%Bag{} = bag, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_delete(bag, pattern))
+
+  @doc """
+  Returns full records that match the specified pattern.
+
+  For more information on the match pattern, see the [erlang documentation](http://erlang.org/doc/man/ets.html#match-2)
+
+  ## Examples
+
+      iex> Bag.new!()
+      iex> |> Bag.add!([{:a, :b, :c, :d}, {:e, :c, :f, :g}, {:h, :b, :i, :j}])
+      iex> |> Bag.match_object({:"$1", :b, :"$2", :_})
+      {:ok, [{:h, :b, :i, :j}, {:a, :b, :c, :d}]}
+
+  """
+  @spec match_object(Bag.t(), ETS.match_pattern()) :: {:ok, [tuple()]} | {:error, any()}
+  def match_object(%Bag{table: table}, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match_object(table, pattern)
+
+  @doc """
+  Same as `match_object/2` but unwraps or raises on error.
+  """
+  @spec match_object!(Bag.t(), ETS.match_pattern()) :: [tuple()]
+  def match_object!(%Bag{} = bag, pattern) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_object(bag, pattern))
+
+  @doc """
+  Same as `match/2` but limits number of results to the specified limit.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      iex> {:ok, {results, _continuation}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      iex> results
+      [{:e, :b, :f, :g}, {:a, :b, :c, :d}]
+
+  """
+  @spec match_object(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(%Bag{table: table}, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: Base.match_object(table, pattern, limit)
+
+  @doc """
+  Same as `match_object/3` but unwraps or raises on error.
+  """
+  @spec match_object!(Bag.t(), ETS.match_pattern(), non_neg_integer()) ::
+          {[tuple()], any() | :end_of_table}
+  def match_object!(%Bag{} = bag, pattern, limit) when is_atom(pattern) or is_tuple(pattern),
+    do: unwrap_or_raise(match_object(bag, pattern, limit))
+
+  @doc """
+  Matches next records from a match/3 or match/1 continuation.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> Bag.add!(bag, [{:a, :b, :c}, {:a, :b, :d}, {:a, :b, :e}, {:f, :b, :g}])
+      iex> {:ok, {results, continuation}} = Bag.match_object(bag, {:"$1", :b, :_}, 2)
+      iex> results
+      [{:a, :b, :d}, {:a, :b, :e}]
+      iex> {:ok, {results2, continuation2}} = Bag.match_object(continuation)
+      iex> results2
+      [{:f, :b, :g}, {:a, :b, :c}]
+      iex> {:ok, {[], :end_of_table}} = Bag.match_object(continuation2)
+
+  """
+  @spec match_object(any()) :: {:ok, {[tuple()], any() | :end_of_table}} | {:error, any()}
+  def match_object(continuation), do: Base.match_object(continuation)
+
+  @doc """
+  Same as `match_object/1` but unwraps or raises on error.
+  """
+  @spec match_object!(any()) :: {[tuple()], any() | :end_of_table}
+  def match_object!(continuation), do: unwrap_or_raise(match_object(continuation))
 
   @doc """
   Returns records in the specified Bag that match the specified match specification.
@@ -578,4 +682,86 @@ defmodule ETS.Bag do
   """
   @spec wrap_existing!(ETS.table_identifier()) :: Bag.t()
   def wrap_existing!(table_identifier), do: unwrap_or_raise(wrap_existing(table_identifier))
+
+  @doc """
+  Transfers ownership of a Bag to another process.
+
+  ## Examples
+
+      iex> bag = Bag.new!()
+      iex> receiver_pid = spawn(fn -> Bag.accept() end)
+      iex> Bag.give_away(bag, receiver_pid)
+      {:ok, bag}
+
+      iex> bag = Bag.new!()
+      iex> dead_pid = ETS.TestUtils.dead_pid()
+      iex> Bag.give_away(bag, dead_pid)
+      {:error, :recipient_not_alive}
+
+  """
+  @spec give_away(Bag.t(), pid(), any()) :: {:ok, Bag.t()} | {:error, any()}
+  def give_away(%Bag{table: table} = bag, pid, gift \\ []),
+    do: Base.give_away(table, pid, gift, bag)
+
+  @doc """
+  Same as `give_away/3` but unwraps or raises on error.
+  """
+  @spec give_away!(Bag.t(), pid(), any()) :: Bag.t()
+  def give_away!(%Bag{} = bag, pid, gift \\ []),
+    do: unwrap_or_raise(give_away(bag, pid, gift))
+
+  @doc """
+  Waits to accept ownership of a table after it is given away.  Successful receipt will
+  return `{:ok, %{bag: bag, from: from, gift: gift}}` where `from` is the pid of the previous
+  owner, and `gift` is any additional metadata sent with the table.
+
+  A timeout may be given in milliseconds, which will return `{:error, :timeout}` if reached.
+
+  See `give_away/3` for more information.
+  """
+  @spec accept() :: {:ok, Bag.t(), pid(), any()} | {:error, any()}
+  def accept(timeout \\ :infinity) do
+    with {:ok, table, from, gift} <- Base.accept(timeout),
+         {:ok, bag} <- Bag.wrap_existing(table) do
+      {:ok, %{bag: bag, from: from, gift: gift}}
+    end
+  end
+
+  @doc """
+  For processes which may receive ownership of a Bag unexpectedly - either via `give_away/3` or
+  by being named the Bag's heir (see `new/1`) - the module should include at least one `accept`
+  clause.  For example, if we want a server to inherit Bags after their previous owner dies:
+
+  ```
+  defmodule Receiver do
+    use GenServer
+    alias ETS.Bag
+    require ETS.Bag
+
+    ...
+
+    Bag.accept :owner_crashed, bag, _from, state do
+      new_state = Map.update!(state, :crashed_bags, &[bag | &1])
+      {:noreply, new_state}
+    end
+  ```
+
+  The first argument is a unique identifier which should match either the "heir_data"
+  in `new/1`, or the "gift" in `give_away/3`.
+  The other arguments declare the variables which may be used in the `do` block:
+  the received Bag, the pid of the previous owner, and the current state of the process.
+
+  The return value should be in the form {:noreply, new_state}, or one of the similar
+  returns expected by `handle_info`/`handle_cast`.
+  """
+  defmacro accept(id, table, from, state, do: contents) do
+    quote do
+      require Base
+
+      Base.accept unquote(id), unquote(table), unquote(from), unquote(state) do
+        var!(unquote(table)) = Bag.wrap_existing!(unquote(table))
+        unquote(contents)
+      end
+    end
+  end
 end

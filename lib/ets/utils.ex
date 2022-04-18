@@ -305,4 +305,60 @@ defmodule ETS.Utils do
       value
     end
   end
+
+  defmacro catch_recipient_already_owns_table(table, pid, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          info = :ets.info(unquote(table))
+
+          case info[:owner] do
+            ^unquote(pid) -> {:error, :recipient_already_owns_table}
+            _ -> reraise(e, __STACKTRACE__)
+          end
+      end
+    end
+  end
+
+  defmacro catch_recipient_not_alive(pid, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          case process_alive_safe(unquote(pid)) do
+            true -> reraise(e, __STACKTRACE__)
+            false -> {:error, :recipient_not_alive}
+            error -> error
+          end
+      end
+    end
+  end
+
+  def process_alive_safe(pid) when is_pid(pid) do
+    Process.alive?(pid)
+  rescue
+    ArgumentError -> {:error, :recipient_not_local}
+  end
+
+  def process_alive_safe(_), do: {:error, :recipient_not_pid}
+
+  defmacro catch_sender_not_table_owner(table, do: do_block) do
+    quote do
+      try do
+        unquote(do_block)
+      rescue
+        e in ArgumentError ->
+          info = :ets.info(unquote(table))
+          self = self()
+
+          case info[:owner] do
+            ^self -> reraise(e, __STACKTRACE__)
+            _ -> {:error, :sender_not_table_owner}
+          end
+      end
+    end
+  end
 end

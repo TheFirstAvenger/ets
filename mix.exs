@@ -9,6 +9,7 @@ defmodule ETS.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
+      elixirc_paths: elixirc_paths(Mix.env()),
       docs: [main: "ETS", extras: ["README.md"]],
       package: package(),
       source_url: "https://github.com/TheFirstAvenger/ets",
@@ -23,7 +24,7 @@ defmodule ETS.MixProject do
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore.exs",
         list_unused_filters: true,
-        plt_file: {:no_warn, "priv/plts/ets.plt"}
+        plt_file: {:no_warn, "plts/ets.plt"}
       ]
     ]
   end
@@ -34,6 +35,10 @@ defmodule ETS.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do

@@ -1,6 +1,9 @@
 defmodule SetTest do
   use ExUnit.Case
+
   alias ETS.Set
+  alias ETS.TestUtils
+
   doctest ETS.Set
 
   describe "New" do
@@ -441,6 +444,66 @@ defmodule SetTest do
                      Set.match!(:not_a_continuation)
                    end
     end
+
+    test "match_delete!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_delete!(set, {:a})
+                   end
+    end
+
+    test "match_object!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_object!(set, {:a})
+                   end
+    end
+
+    test "match_object/3 reaches end of table" do
+      set = Set.new!()
+      Set.put!(set, {:w, :x, :y, :z})
+      assert {:ok, {[], :end_of_table}} = Set.match_object(set, {:_, :b, :_, :_}, 1)
+
+      Set.put!(set, {:a, :b, :c, :d})
+      assert {:ok, {results, :end_of_table}} = Set.match_object(set, {:"$1", :b, :"$2", :_}, 2)
+      assert results == [{:a, :b, :c, :d}]
+    end
+
+    test "match_object!/3 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_object!(set, {:a}, 1)
+                   end
+    end
+
+    test "match_object/1 finds less matches than the limit" do
+      set = Set.new!()
+      Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      {:ok, {_result, continuation}} = Set.match_object(set, {:_, :b, :_, :_}, 2)
+
+      assert {:ok, {results, :end_of_table}} = Set.match_object(continuation)
+      assert results == [{:h, :b, :i, :j}]
+    end
+
+    test "match_object!/1 raises on error" do
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/1 returned {:error, :invalid_continuation}",
+                   fn ->
+                     Set.match_object!(:not_a_continuation)
+                   end
+    end
   end
 
   describe "Select" do
@@ -654,6 +717,74 @@ defmodule SetTest do
                    fn ->
                      Set.wrap_existing!(:not_a_table)
                    end
+    end
+  end
+
+  describe "Give Away give_away!/3" do
+    test "success" do
+      recipient_pid = self()
+
+      spawn(fn ->
+        set = Set.new!()
+        Set.give_away!(set, recipient_pid)
+      end)
+
+      assert {:ok, %{set: %Set{}, gift: []}} = Set.accept()
+    end
+
+    test "timeout" do
+      assert {:error, :timeout} = Set.accept(10)
+    end
+
+    test "cannot give to process which already owns table" do
+      assert_raise RuntimeError,
+                   "ETS.Set.give_away!/3 returned {:error, :recipient_already_owns_table}",
+                   fn ->
+                     set = Set.new!()
+                     Set.give_away!(set, self())
+                   end
+    end
+
+    test "cannot give to process which is not alive" do
+      assert_raise RuntimeError,
+                   "ETS.Set.give_away!/3 returned {:error, :recipient_not_alive}",
+                   fn ->
+                     set = Set.new!()
+                     Set.give_away!(set, TestUtils.dead_pid())
+                   end
+    end
+
+    test "cannot give a table belonging to another process" do
+      sender_pid = self()
+
+      _owner_pid =
+        spawn_link(fn ->
+          set = Set.new!()
+          send(sender_pid, set)
+          Process.sleep(:infinity)
+        end)
+
+      assert_receive set
+
+      recipient_pid = spawn_link(fn -> Process.sleep(:infinity) end)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.give_away!/3 returned {:error, :sender_not_table_owner}",
+                   fn ->
+                     Set.give_away!(set, recipient_pid)
+                   end
+    end
+  end
+
+  describe "Macro" do
+    test "accept/5 success" do
+      {:ok, recipient_pid} = start_supervised(ETS.TestServer)
+
+      %Set{table: table} = set = Set.new!()
+
+      Set.give_away!(set, recipient_pid, :set_test)
+
+      assert_receive {:thank_you, %Set{table: ^table}}
     end
   end
 

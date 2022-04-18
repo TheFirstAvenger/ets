@@ -1,6 +1,9 @@
 defmodule BagTest do
   use ExUnit.Case
+
   alias ETS.Bag
+  alias ETS.TestUtils
+
   doctest ETS.Bag
 
   describe "Named Tables Start" do
@@ -234,6 +237,66 @@ defmodule BagTest do
                      Bag.match!(:not_a_continuation)
                    end
     end
+
+    test "match_delete!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_delete!(bag, {:a})
+                   end
+    end
+
+    test "match_object!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a})
+                   end
+    end
+
+    test "match_object/3 reaches end of table" do
+      bag = Bag.new!()
+      Bag.add!(bag, {:w, :x, :y, :z})
+      assert {:ok, {[], :end_of_table}} = Bag.match_object(bag, {:_, :b, :_, :_}, 1)
+
+      Bag.add!(bag, {:a, :b, :c, :d})
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      assert results == [{:a, :b, :c, :d}]
+    end
+
+    test "match_object!/3 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a}, 1)
+                   end
+    end
+
+    test "match_object/1 finds less matches than the limit" do
+      bag = Bag.new!()
+      Bag.add!(bag, [{:a, :b, :c, :d}, {:a, :b, :e, :f}, {:g, :b, :h, :i}])
+      {:ok, {_result, continuation}} = Bag.match_object(bag, {:_, :b, :_, :_}, 2)
+
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(continuation)
+      assert results == [{:g, :b, :h, :i}]
+    end
+
+    test "match_object!/1 raises on error" do
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/1 returned {:error, :invalid_continuation}",
+                   fn ->
+                     Bag.match_object!(:not_a_continuation)
+                   end
+    end
   end
 
   describe "Select" do
@@ -326,6 +389,74 @@ defmodule BagTest do
       table = :ets.new(nil, [:bag])
       bag = Bag.wrap_existing!(table)
       assert table == Bag.get_table!(bag)
+    end
+  end
+
+  describe "Give Away give_away!/3" do
+    test "success" do
+      recipient_pid = self()
+
+      spawn(fn ->
+        bag = Bag.new!()
+        Bag.give_away!(bag, recipient_pid)
+      end)
+
+      assert {:ok, %{bag: %Bag{}, gift: []}} = Bag.accept()
+    end
+
+    test "timeout" do
+      assert {:error, :timeout} = Bag.accept(10)
+    end
+
+    test "cannot give to process which already owns table" do
+      assert_raise RuntimeError,
+                   "ETS.Bag.give_away!/3 returned {:error, :recipient_already_owns_table}",
+                   fn ->
+                     bag = Bag.new!()
+                     Bag.give_away!(bag, self())
+                   end
+    end
+
+    test "cannot give to process which is not alive" do
+      assert_raise RuntimeError,
+                   "ETS.Bag.give_away!/3 returned {:error, :recipient_not_alive}",
+                   fn ->
+                     bag = Bag.new!()
+                     Bag.give_away!(bag, TestUtils.dead_pid())
+                   end
+    end
+
+    test "cannot give a table belonging to another process" do
+      sender_pid = self()
+
+      _owner_pid =
+        spawn_link(fn ->
+          bag = Bag.new!()
+          send(sender_pid, bag)
+          Process.sleep(:infinity)
+        end)
+
+      assert_receive bag
+
+      recipient_pid = spawn_link(fn -> Process.sleep(:infinity) end)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.give_away!/3 returned {:error, :sender_not_table_owner}",
+                   fn ->
+                     Bag.give_away!(bag, recipient_pid)
+                   end
+    end
+  end
+
+  describe "Macro" do
+    test "accept/5 success" do
+      {:ok, recipient_pid} = start_supervised(ETS.TestServer)
+
+      %Bag{table: table} = bag = Bag.new!()
+
+      Bag.give_away!(bag, recipient_pid, :bag_test)
+
+      assert_receive {:thank_you, %Bag{table: ^table}}
     end
   end
 
