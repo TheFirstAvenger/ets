@@ -24,7 +24,7 @@ defmodule ETS.MixProject do
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore.exs",
         list_unused_filters: true,
-        plt_file: {:no_warn, "priv/plts/ets.plt"}
+        plt_file: {:no_warn, "plts/ets.plt"}
       ]
     ]
   end
