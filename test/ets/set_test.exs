@@ -708,6 +708,17 @@ defmodule SetTest do
                      Set.update_element!(set, :a, {1, :invalid})
                    end
     end
+
+    test "update_element!/3 fails if key does not exist" do
+      set = Set.new!()
+      Set.put(set, {:a, :b, :c})
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :key_not_found}",
+                   fn ->
+                     Set.update_element!(set, :b, {2, :foo})
+                   end
+    end
   end
 
   describe "Wrap Existing" do
