@@ -444,6 +444,66 @@ defmodule SetTest do
                      Set.match!(:not_a_continuation)
                    end
     end
+
+    test "match_delete!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_delete!(set, {:a})
+                   end
+    end
+
+    test "match_object!/2 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_object!(set, {:a})
+                   end
+    end
+
+    test "match_object/3 reaches end of table" do
+      set = Set.new!()
+      Set.put!(set, {:w, :x, :y, :z})
+      assert {:ok, {[], :end_of_table}} = Set.match_object(set, {:_, :b, :_, :_}, 1)
+
+      Set.put!(set, {:a, :b, :c, :d})
+      assert {:ok, {results, :end_of_table}} = Set.match_object(set, {:"$1", :b, :"$2", :_}, 2)
+      assert results == [{:a, :b, :c, :d}]
+    end
+
+    test "match_object!/3 raises on error" do
+      set = Set.new!()
+      Set.delete(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.match_object!(set, {:a}, 1)
+                   end
+    end
+
+    test "match_object/1 finds less matches than the limit" do
+      set = Set.new!()
+      Set.put!(set, [{:a, :b, :c, :d}, {:e, :b, :f, :g}, {:h, :b, :i, :j}])
+      {:ok, {_result, continuation}} = Set.match_object(set, {:_, :b, :_, :_}, 2)
+
+      assert {:ok, {results, :end_of_table}} = Set.match_object(continuation)
+      assert results == [{:h, :b, :i, :j}]
+    end
+
+    test "match_object!/1 raises on error" do
+      assert_raise RuntimeError,
+                   "ETS.Set.match_object!/1 returned {:error, :invalid_continuation}",
+                   fn ->
+                     Set.match_object!(:not_a_continuation)
+                   end
+    end
   end
 
   describe "Select" do

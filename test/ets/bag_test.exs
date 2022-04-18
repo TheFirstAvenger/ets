@@ -237,6 +237,66 @@ defmodule BagTest do
                      Bag.match!(:not_a_continuation)
                    end
     end
+
+    test "match_delete!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_delete!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_delete!(bag, {:a})
+                   end
+    end
+
+    test "match_object!/2 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/2 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a})
+                   end
+    end
+
+    test "match_object/3 reaches end of table" do
+      bag = Bag.new!()
+      Bag.add!(bag, {:w, :x, :y, :z})
+      assert {:ok, {[], :end_of_table}} = Bag.match_object(bag, {:_, :b, :_, :_}, 1)
+
+      Bag.add!(bag, {:a, :b, :c, :d})
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(bag, {:"$1", :b, :"$2", :_}, 2)
+      assert results == [{:a, :b, :c, :d}]
+    end
+
+    test "match_object!/3 raises on error" do
+      bag = Bag.new!()
+      Bag.delete(bag)
+
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Bag.match_object!(bag, {:a}, 1)
+                   end
+    end
+
+    test "match_object/1 finds less matches than the limit" do
+      bag = Bag.new!()
+      Bag.add!(bag, [{:a, :b, :c, :d}, {:a, :b, :e, :f}, {:g, :b, :h, :i}])
+      {:ok, {_result, continuation}} = Bag.match_object(bag, {:_, :b, :_, :_}, 2)
+
+      assert {:ok, {results, :end_of_table}} = Bag.match_object(continuation)
+      assert results == [{:g, :b, :h, :i}]
+    end
+
+    test "match_object!/1 raises on error" do
+      assert_raise RuntimeError,
+                   "ETS.Bag.match_object!/1 returned {:error, :invalid_continuation}",
+                   fn ->
+                     Bag.match_object!(:not_a_continuation)
+                   end
+    end
   end
 
   describe "Select" do

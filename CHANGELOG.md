@@ -2,7 +2,8 @@
 
 ## Next
 
-* Add give_away/3, accept/1, and accept/6
+* Add match_object/{1,2,3} and match_delete/2
+* Add give_away/3, accept/1, and accept/6 - Thanks @APB9785
 
 ## 0.8.1
 
