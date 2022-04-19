@@ -828,6 +828,48 @@ defmodule ETS.Set do
   def delete_all!(%Set{} = set), do: unwrap_or_raise(delete_all(set))
 
   @doc """
+  Updates one or more elements within the record with the given `key`. The element_spec is
+  a tuple (or list of tuples) of the form `{position, value}`, which will update the element
+  at `position` (1-indexed) to have the given `value`.  When a list is given, multiple elements
+  can be updated within the same record.  If the same position occurs more than once in the list,
+  the last value in the list is written. If the list is empty or the function fails, no updates
+  are done. The function is also atomic in the sense that other processes can never see any
+  intermediate results.
+
+  Returns `{:ok, set}` if an object with the given key is found, otherwise returns
+  `{:error, :key_not_found}`.
+
+  ## Examples
+
+      iex> set = Set.new!()
+      iex> Set.put!(set, {:a, :b, :c})
+      iex> Set.update_element(set, :a, {2, :d})
+      {:ok, set}
+      iex> Set.to_list!(set)
+      [{:a, :d, :c}]
+      iex> Set.update_element(set, :a, [{2, :x}, {3, :y}])
+      {:ok, set}
+      iex> Set.to_list!(set)
+      [{:a, :x, :y}]
+
+  """
+  @spec update_element(Set.t(), any(), tuple() | [tuple()]) :: {:ok, Set.t()} | {:error, any()}
+  def update_element(%Set{table: table} = set, key, element_spec) do
+    case Base.update_element(table, key, element_spec) do
+      true -> {:ok, set}
+      false -> {:error, :key_not_found}
+      error -> error
+    end
+  end
+
+  @doc """
+  Same as `update_element/3` but unwraps or raises on error.
+  """
+  @spec update_element!(Set.t(), any(), tuple() | [tuple()]) :: Set.t()
+  def update_element!(%Set{} = set, key, element_spec),
+    do: unwrap_or_raise(update_element(set, key, element_spec))
+
+  @doc """
   Wraps an existing :ets :set or :ordered_set in a Set struct.
 
   ## Examples

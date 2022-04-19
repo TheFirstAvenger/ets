@@ -626,7 +626,7 @@ defmodule SetTest do
   end
 
   describe "Delete" do
-    test "delete!/2 raises on error" do
+    test "delete!/1 raises on error" do
       set = Set.new!()
       Set.delete!(set)
 
@@ -635,7 +635,7 @@ defmodule SetTest do
       end
     end
 
-    test "delete!/1 raises on error" do
+    test "delete!/2 raises on error" do
       set = Set.new!()
       Set.delete!(set)
 
@@ -652,6 +652,71 @@ defmodule SetTest do
                    "ETS.Set.delete_all!/1 returned {:error, :table_not_found}",
                    fn ->
                      Set.delete_all!(set)
+                   end
+    end
+  end
+
+  describe "Update" do
+    test "update_element!/3 fails if table no longer exists" do
+      set = Set.new!()
+      Set.delete!(set)
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :table_not_found}",
+                   fn ->
+                     Set.update_element!(set, :a, {2, :b})
+                   end
+    end
+
+    test "update_element!/3 must have write access to the table" do
+      test_pid = self()
+
+      spawn_link(fn ->
+        set = Set.new!()
+        Set.put!(set, {:a, :b, :c})
+        send(test_pid, set)
+        Process.sleep(:infinity)
+      end)
+
+      assert_receive set
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :write_protected}",
+                   fn ->
+                     Set.update_element!(set, :a, {2, :x})
+                   end
+    end
+
+    test "update_element!/3 fails if position is out of bounds" do
+      set = Set.new!()
+      Set.put!(set, {:a, :b, :c})
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :position_out_of_bounds}",
+                   fn ->
+                     Set.update_element!(set, :a, [{2, :ok}, {4, :invalid}])
+                   end
+    end
+
+    test "update_element!/3 cannot update a record's key" do
+      set = Set.new!()
+      Set.put!(set, {:a, :b, :c})
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :cannot_update_key}",
+                   fn ->
+                     Set.update_element!(set, :a, {1, :invalid})
+                   end
+    end
+
+    test "update_element!/3 fails if key does not exist" do
+      set = Set.new!()
+      Set.put(set, {:a, :b, :c})
+
+      assert_raise RuntimeError,
+                   "ETS.Set.update_element!/3 returned {:error, :key_not_found}",
+                   fn ->
+                     Set.update_element!(set, :b, {2, :foo})
                    end
     end
   end
