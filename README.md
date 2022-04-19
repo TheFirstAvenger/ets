@@ -2,7 +2,7 @@
 
 `:ets`, the Elixir way
 
-[![Build Status](https://travis-ci.com/TheFirstAvenger/ets.svg?branch=master)](https://travis-ci.com/TheFirstAvenger/ets)
+[![Build status](https://github.com/TheFirstAvenger/ets/actions/workflows/ci.yml/badge.svg)](https://github.com/TheFirstAvenger/ets/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/TheFirstAvenger/ets/badge.svg?branch=master)](https://coveralls.io/github/TheFirstAvenger/ets?branch=master)
 [![Project license](https://img.shields.io/hexpm/l/ets.svg)](https://unlicense.org/)
 [![Hex.pm package](https://img.shields.io/hexpm/v/ets.svg)](https://hex.pm/packages/ets)
@@ -12,20 +12,20 @@ ETS is a set of Elixir modules that wrap Erlang Term Storage (`:ets`).
 
 ## Current Features
 
-* `ETS.Set` - wraps `:set` and `:ordered_set`
-* `ETS.Bag` - wraps `:bag` and `:duplicate_bag`
-* `ETS.KeyValueSet` - extension of `ETS.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
-* Most used functions from `:ets` replicated for all wrappers
-* Returns {:error, reason} tuples (or raises in ! versions) for:
-  * `:table_not_found`
-  * `:table_already_exists`
-  * `:key_not_found`
-  * `:invalid_record` (when inserting non-tuples)
-  * `:record_too_small` (tuple smaller than keypos index)
-  * `:position_out_of_bounds` (`lookup` with a pos > length of one of the results)
-  * `:invalid_select_spec`
-  * `:write_protected` - trying to write to a protected or private table from a different process than the owner
-  * `:read_protected` - trying to read from a private table from a different process than the owner
+-   `ETS.Set` - wraps `:set` and `:ordered_set`
+-   `ETS.Bag` - wraps `:bag` and `:duplicate_bag`
+-   `ETS.KeyValueSet` - extension of `ETS.Set` that abstracts away tuple and key index concepts into simple key/value inputs/outputs.
+-   Most used functions from `:ets` replicated for all wrappers
+-   Returns {:error, reason} tuples (or raises in ! versions) for:
+    -   `:table_not_found`
+    -   `:table_already_exists`
+    -   `:key_not_found`
+    -   `:invalid_record` (when inserting non-tuples)
+    -   `:record_too_small` (tuple smaller than keypos index)
+    -   `:position_out_of_bounds` (`lookup` with a pos > length of one of the results)
+    -   `:invalid_select_spec`
+    -   `:write_protected` - trying to write to a protected or private table from a different process than the owner
+    -   `:read_protected` - trying to read from a private table from a different process than the owner
 
 ## Design Goals
 
@@ -33,21 +33,21 @@ The purpose of this package is to improve the developer experience when both lea
 
 This will be accomplished by:
 
-* Conforming to Elixir standards:
-  * Two versions of all functions:
-    * Main function (e.g. `get`) returns `{:ok, return}`/`{:error, reason}` tuples.
-    * Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
-  * All options specified via keyword list.
-* Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
-  * Avoid adding performance overhead by using try/rescue instead of pre-validation
-  * On rescue, try to determine what went wrong (e.g. missing table) and return appropriate error
-  * Fall back to `{:error, :unknown_error}` (logging details) if unable to determine reason.
-* Appropriate error returns/raises when encountering `$end_of_table`.
-* Providing Elixir friendly documentation.
-* Providing `ETS.Set` and `ETS.Bag` modules with appropriate function signatures and error handling.
-  * `ETS.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
-* Providing abstractions on top of the two base modules for specific usages
-  * `ETS.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
+-   Conforming to Elixir standards:
+    -   Two versions of all functions:
+        -   Main function (e.g. `get`) returns `{:ok, return}`/`{:error, reason}` tuples.
+        -   Bang function (e.g. `get!`) returns unwrapped value or raises on :error.
+    -   All options specified via keyword list.
+-   Wrapping unhelpful `ArgumentError`'s with appropriate error returns.
+    -   Avoid adding performance overhead by using try/rescue instead of pre-validation
+    -   On rescue, try to determine what went wrong (e.g. missing table) and return appropriate error
+    -   Fall back to `{:error, :unknown_error}` (logging details) if unable to determine reason.
+-   Appropriate error returns/raises when encountering `$end_of_table`.
+-   Providing Elixir friendly documentation.
+-   Providing `ETS.Set` and `ETS.Bag` modules with appropriate function signatures and error handling.
+    -   `ETS.Set.get` returns a single item (or nil/provided default) instead of list as sets never have multiple records for a key.
+-   Providing abstractions on top of the two base modules for specific usages
+    -   `ETS.KeyValueSet` abstracts away the concept of tuple records, replacing it with standard key/value interactions.
 
 ## Changes
 
@@ -133,60 +133,60 @@ iex> Bag.to_list(bag)
 
 ### Base Modules
 
-* [X] `ETS`
-  * [X] All
-* [X] `ETS.Set`
-  * [x] Put (insert)
-  * [x] Get (lookup)
-  * [x] Get Element
-  * [X] Delete
-  * [X] Delete All
-  * [X] First
-  * [X] Next
-  * [X] Last
-  * [X] Previous
-  * [X] Match
-  * [X] Select
-  * [X] Select Delete
-  * [X] Has Key (Member)
-  * [X] Info
-  * [X] Delete
-  * [X] To List (tab2list)
-  * [X] Wrap
-* [X] `ETS.Bag`
-  * [x] Add (insert)
-  * [x] Lookup
-  * [x] Lookup Element
-  * [X] Delete
-  * [X] Delete All
-  * [X] Match
-  * [X] Select
-  * [X] Select Delete
-  * [X] Has Key (Member)
-  * [X] Info
-  * [X] Delete
-  * [X] To List (tab2list)
-  * [X] Wrap
+-   [x] `ETS`
+    -   [x] All
+-   [x] `ETS.Set`
+    -   [x] Put (insert)
+    -   [x] Get (lookup)
+    -   [x] Get Element
+    -   [x] Delete
+    -   [x] Delete All
+    -   [x] First
+    -   [x] Next
+    -   [x] Last
+    -   [x] Previous
+    -   [x] Match
+    -   [x] Select
+    -   [x] Select Delete
+    -   [x] Has Key (Member)
+    -   [x] Info
+    -   [x] Delete
+    -   [x] To List (tab2list)
+    -   [x] Wrap
+-   [x] `ETS.Bag`
+    -   [x] Add (insert)
+    -   [x] Lookup
+    -   [x] Lookup Element
+    -   [x] Delete
+    -   [x] Delete All
+    -   [x] Match
+    -   [x] Select
+    -   [x] Select Delete
+    -   [x] Has Key (Member)
+    -   [x] Info
+    -   [x] Delete
+    -   [x] To List (tab2list)
+    -   [x] Wrap
 
 ### Abstractions
 
-* [X] `ETS.KeyValueSet`
-  * [x] New
-  * [x] Wrap Existing
-  * [x] Put
-  * [x] Put New
-  * [x] Get
-  * [x] Info
-  * [x] Get Table
-  * [x] First
-  * [x] Last
-  * [x] Next
-  * [x] Previous
-  * [x] Has Key
-  * [x] Delete
-  * [x] Delete Key
-  * [x] Delete All
-  * [x] To List
+-   [x] `ETS.KeyValueSet`
+    -   [x] New
+    -   [x] Wrap Existing
+    -   [x] Put
+    -   [x] Put New
+    -   [x] Get
+    -   [x] Info
+    -   [x] Get Table
+    -   [x] First
+    -   [x] Last
+    -   [x] Next
+    -   [x] Previous
+    -   [x] Has Key
+    -   [x] Delete
+    -   [x] Delete Key
+    -   [x] Delete All
+    -   [x] To List
 
 ## Installation
 
@@ -195,16 +195,16 @@ iex> Bag.to_list(bag)
 ```elixir
 def deps do
   [
-    {:ets, "~> 0.8.1"}
+    {:ets, "~> 0.9.0"}
   ]
 end
 ```
 
-Docs can be found at [https://hexdocs.pm/ets](https://hexdocs.pm/ets).
+Docs can be found at <https://hexdocs.pm/ets>.
 
 ## Contributing
 
 Contributions welcome. Specifically looking to:
 
-* Add remainder of functions ([See Erlang Docs](http://erlang.org/doc/man/ets.html])).
-* Discover and add zero-impact recovery for any additional possible `:ets` `ArgumentError`s.
+-   Add remainder of functions ([See Erlang Docs](http://erlang.org/doc/man/ets.html])).
+-   Discover and add zero-impact recovery for any additional possible `:ets` `ArgumentError`s.
