@@ -206,5 +206,5 @@ Docs can be found at <https://hexdocs.pm/ets>.
 
 Contributions welcome. Specifically looking to:
 
--   Add remainder of functions ([See Erlang Docs](http://erlang.org/doc/man/ets.html])).
+-   Add remainder of functions, ([See Erlang Docs](http://erlang.org/doc/man/ets.html)).
 -   Discover and add zero-impact recovery for any additional possible `:ets` `ArgumentError`s.
