@@ -11,7 +11,7 @@ defmodule ETS.Base do
           | {:protection, :private | :protected | :public}
           | {:heir, :none | {pid(), any()}}
           | {:keypos, non_neg_integer()}
-          | {:write_concurrency, boolean()}
+          | {:write_concurrency, boolean() | :auto}
           | {:read_concurrency, boolean()}
           | {:compressed, boolean()}
   @type options :: [option]
@@ -64,7 +64,7 @@ defmodule ETS.Base do
   defp parse_opts(acc, [{:keypos, keypos} | tl]) when is_integer(keypos) and keypos >= 0,
     do: parse_opts([{:keypos, keypos} | acc], tl)
 
-  defp parse_opts(acc, [{:write_concurrency, wc} | tl]) when is_boolean(wc),
+  defp parse_opts(acc, [{:write_concurrency, wc} | tl]) when is_boolean(wc) or wc == :auto,
     do: parse_opts([{:write_concurrency, wc} | acc], tl)
 
   defp parse_opts(acc, [{:read_concurrency, rc} | tl]) when is_boolean(rc),
