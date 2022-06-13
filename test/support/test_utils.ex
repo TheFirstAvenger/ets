@@ -11,7 +11,7 @@ defmodule ETS.TestUtils do
     wait_until_dead(pid)
   end
 
-  def is_otp25 do
+  def otp25? do
     :erlang.system_info(:otp_release) |> to_string() |> String.starts_with?("25")
   end
 
