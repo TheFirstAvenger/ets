@@ -10,7 +10,11 @@ defmodule ETS.MixProject do
       deps: deps(),
       description: description(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      docs: [main: "ETS", extras: ["README.md"]],
+      docs: [
+        main: "ETS",
+        extras: ["README.md"],
+        source_ref: "master"
+      ],
       package: package(),
       source_url: "https://github.com/TheFirstAvenger/ets",
       test_coverage: [tool: ExCoveralls],
