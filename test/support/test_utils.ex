@@ -12,7 +12,8 @@ defmodule ETS.TestUtils do
   end
 
   def otp25? do
-    :erlang.system_info(:otp_release) |> to_string() |> String.starts_with?("25")
+    {version, ""} = :erlang.system_info(:otp_release) |> to_string() |> Integer.parse()
+    version >= 25
   end
 
   defp wait_until_dead(pid) do
