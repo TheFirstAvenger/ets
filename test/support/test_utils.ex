@@ -11,6 +11,11 @@ defmodule ETS.TestUtils do
     wait_until_dead(pid)
   end
 
+  def otp25? do
+    {version, ""} = :erlang.system_info(:otp_release) |> to_string() |> Integer.parse()
+    version >= 25
+  end
+
   defp wait_until_dead(pid) do
     if Process.alive?(pid) do
       wait_until_dead(pid)

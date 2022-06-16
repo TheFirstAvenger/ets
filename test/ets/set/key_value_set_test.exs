@@ -67,6 +67,11 @@ defmodule KeyValueSetTest do
     test "Write Concurrency" do
       assert %{write_concurrency: true} = table_info(KeyValueSet.new!(write_concurrency: true))
       assert %{write_concurrency: false} = table_info(KeyValueSet.new!(write_concurrency: false))
+
+      if ETS.TestUtils.otp25?() do
+        assert %{write_concurrency: :auto} =
+                 table_info(KeyValueSet.new!(write_concurrency: :auto))
+      end
     end
 
     test "Compressed" do
